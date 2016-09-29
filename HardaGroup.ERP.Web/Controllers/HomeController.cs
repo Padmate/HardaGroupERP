@@ -1,4 +1,7 @@
-﻿using System;
+﻿using HardaGroup.ERP.Models;
+using HardaGroup.ERP.Service;
+using HardaGroup.ERP.Web.Filters;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -6,31 +9,51 @@ using System.Web.Mvc;
 
 namespace HardaGroup.ERP.Web.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
 
         public ActionResult Default()
         {
+            B_SupplierInformation dS = new B_SupplierInformation();
+            dS.GetAll();
+            
             return View();
         }
 
+        [Authorization]
         public ActionResult Index()
         {
             return View();
         }
 
-        public ActionResult About()
+        /// <summary>
+        /// 加载树形菜单
+        /// </summary>
+        /// <returns></returns>
+        [Authorization]
+        public ActionResult LoadTreeData()
         {
-            ViewBag.Message = "Your application description page.";
+            //当前登录用户
+            var user = GetCurrentUser();
+            //根据当前用户的角色查找菜单
+            string userType = "admin";
+            var treeData = TreeConfig.Init.TreeDatas(userType);
+
+
+            return Json(treeData.children);
+        }
+
+        /// <summary>
+        /// 通知公告
+        /// </summary>
+        /// <returns></returns>
+        [Authorization]
+        public ActionResult Announcement()
+        {
 
             return View();
         }
 
-        public ActionResult Contact()
-        {
-            ViewBag.Message = "Your contact page.";
 
-            return View();
-        }
     }
 }

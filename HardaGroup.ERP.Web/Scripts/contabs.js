@@ -131,6 +131,7 @@ $(function () {
         }
     }
 
+    //双击TAB页刷新方法
     function c() {
         var t = $('.J_iframe[data-id="' + $(this).data("id") + '"]'),
             e = t.attr("src"),
@@ -138,6 +139,7 @@ $(function () {
         t.attr("src", e).load(function () {
             layer.close(a)
         })
+        
     }
     $(".J_menuItem").each(function (t) {
         $(this).attr("data-index") || $(this).attr("data-index", t)
