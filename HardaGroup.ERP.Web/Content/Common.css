@@ -64,6 +64,23 @@ h1,h2,h3,h4,h5,h6
     color:#333;
 }
 
+
+
+.input-small-full {
+    width: 100%;
+    max-width: 100%;
+    line-height: 25px;
+    height: 25px;
+}
+
+.select-small-full{
+    width: 100%;
+    max-width: 100%;
+    line-height: 25px;
+    height: 25px;
+   
+}
+
 .input-mediu-full {
     width: 100%;
     max-width: 100%;
@@ -251,14 +268,21 @@ div.divmiddle-box-content { display: table-cell; vertical-align: middle; }
 .curd-model .modal-content{
         min-height:100%;
     }
-    .curd-model .close-modal{
-    position:fixed;
-    width:75px;
-    height:75px;
-    background-color:transparent;
-    top:25px;
-    right:25px;
-    cursor:pointer
+.curd-model .close-modal{
+position:fixed;
+width:75px;
+height:75px;
+background-color:transparent;
+top:25px;
+right:25px;
+cursor:pointer
+}
+.curd-model .small-modal .close-modal{
+    width:30px;
+    height:30px;
+    top:5px;
+    right:5px;
+    z-index:999;
 }
 .curd-title{
     margin:20px auto;
@@ -273,6 +297,10 @@ div.divmiddle-box-content { display: table-cell; vertical-align: middle; }
     height:300px;
     overflow-x:hidden;
     overflow-y:auto;
+}
+.smal-model-area
+{
+    margin:10px auto;
 }
 .mediu-modal{
     width:800px;

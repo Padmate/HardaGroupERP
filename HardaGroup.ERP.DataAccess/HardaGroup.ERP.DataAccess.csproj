@@ -48,9 +48,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DBConfiguration\CompanyInfoConfiguration.cs" />
+    <Compile Include="DBConfiguration\UserConfiguration.cs" />
+    <Compile Include="DBConfiguration\UserTypeConfiguration.cs" />
     <Compile Include="D_SupplierInformation.cs" />
     <Compile Include="DBConfiguration\SupplierInformationConfiguration.cs" />
     <Compile Include="DBContext.cs" />
+    <Compile Include="D_UserType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

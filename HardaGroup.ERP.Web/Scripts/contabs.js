@@ -58,6 +58,11 @@ $(function () {
     }
 
     function n() {
+        //var tabWidth = $(".content-tabs").width() - 40;
+        //var contentWidth = $(".page-tabs-content").outerWidth();
+        //if (contentWidth > tabWidth) {
+        //    alert(contentWidth);
+        //}
 
         var t = $(this).attr("href"),
             id = $(this).data("id"),

@@ -79,8 +79,8 @@
                     <div class="navbar-header">
                         <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="javaScript:void(0)"><i class="fa fa-bars"></i> </a>
 
-
                     </div>
+                    
                     <ul class="nav navbar-top-links navbar-right">
                         <li class="dropdown">
                             <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
@@ -222,19 +222,13 @@
                         </li>
                     </ul>
                 </div>
-                <a href="login.html" class="roll-nav roll-right J_tabExit">
-                    <i class="fa fa fa-sign-out"></i> 退出
-                </a>
+
             </div>
             <div class="row J_mainContent" id="content-main">
                 <iframe class="J_iframe" name="iframe0" width="100%" height="100%" src="/Home/Announcement"
                         frameborder="0" data-id="announcement" seamless></iframe>
             </div>
-            <div class="footer">
-                <div class="pull-right">
-                    &copy; 2014-2015 <a href="javascript:if(confirm(%27http://www.zi-han.net/  \n\nThis file was not retrieved by Teleport Pro, because it is addressed on a domain or path outside the boundaries set for its Starting Address.  \n\nDo you want to open it from the server?%27))window.location=%27http://www.zi-han.net/%27" tppabs="http://www.zi-han.net/" target="_blank">zihan's blog</a>
-                </div>
-            </div>
+            
         </div>
     </div>
 </body>
@@ -242,11 +236,20 @@
     $(function () {
 
         //加载左边功能列表
-        $("#side-menu").loadtree({url:'/Home/LoadTreeData'});
+        $("#side-menu").loadtree({ url: '/Home/LoadTreeData' });
+
+        //导航菜单收缩
+        $(".navbar-top-links li").hover(function () {
+            $(this).find("ul").show();
+        }, function () {
+            $(this).find("ul").hide();
+
+        });
+
+        
     });
 </script>
 <script type="text/javascript" src="~/Scripts/plugins/metisMenu/jquery.metisMenu.js"></script>
 <script type="text/javascript" src="~/Scripts/plugins/slimscroll/jquery.slimscroll.min.js"></script>
-<script type="text/javascript" src="~/Scripts/plugins/layer/layer.min.js"></script>
 <script type="text/javascript" src="~/Scripts/hplus.js"></script>
 <script type="text/javascript" src="~/Scripts/contabs.js"></script>

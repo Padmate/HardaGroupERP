@@ -575,23 +575,8 @@ body.canvas-menu.mini-navbar nav.navbar-static-side {
 	background-color:#26d7d9;
 	border-color:#26d7d9
 }
-.btn-default {
-	background-color:#c2c2c2;
-	border-color:#c2c2c2;
-	color:#FFF
-}
-.btn-default.active,.btn-default:active,.btn-default:focus,.btn-default:hover,.open .dropdown-toggle.btn-default {
-	background-color:#bababa;
-	border-color:#bababa;
-	color:#FFF
-}
-.btn-default.active,.btn-default:active,.open .dropdown-toggle.btn-default {
-	background-image:none
-}
-.btn-default.active[disabled],.btn-default.disabled,.btn-default.disabled.active,.btn-default.disabled:active,.btn-default.disabled:focus,.btn-default.disabled:hover,.btn-default[disabled],.btn-default[disabled]:active,.btn-default[disabled]:focus,.btn-default[disabled]:hover,fieldset[disabled] .btn-default,fieldset[disabled] .btn-default.active,fieldset[disabled] .btn-default:active,fieldset[disabled] .btn-default:focus,fieldset[disabled] .btn-default:hover {
-	background-color:#ccc;
-	border-color:#ccc
-}
+
+
 .btn-warning {
 	background-color:#f8ac59;
 	border-color:#f8ac59;
@@ -2574,10 +2559,10 @@ nav.page-tabs .page-tabs-content {
 	cursor:pointer
 }
 .roll-right.J_tabRight {
-	right:140px
+	right:80px
 }
 .roll-right.btn-group {
-	right:60px;
+	right:0px;
 	width:80px;
 	padding:0
 }
@@ -2594,7 +2579,7 @@ nav.page-tabs .page-tabs-content {
 	left:auto
 }
 #content-main {
-	height:calc(100% - 140px);
+	height:calc(100% - 104px);
 	overflow: hidden
 }
 .fixed-nav #content-main {
@@ -5357,9 +5342,7 @@ body.fixed-sidebar.mini-navbar .navbar-static-side {
 	text-align:right;
 	display:block
 }
-.content-tabs {
-	display:none
-}
+
 #content-main {
 	height:calc(100% - 100px)
 }
@@ -5568,7 +5551,7 @@ body.fixed-sidebar.mini-navbar .navbar-static-side {
 	-webkit-overflow-scrolling:touch;
 }
 }.navbar-header {
-	width:60%
+	width:10%
 }
 .bs-glyphicons {
 	margin:0 -10px 20px;
@@ -5623,4 +5606,37 @@ body.fixed-sidebar.mini-navbar .navbar-static-side {
 .navbar-top-links>li>a:focus,
 .navbar-top-links>li>a:active{
     background-color:#337ab7;
+}
+.btn-grid{
+    margin:0px 5px;
+}
+
+/******字体随着屏幕宽度改变*******/
+@media(max-width:479px) {
+    .content-tabs {
+	    display:none
+    }
+    .navbar-top-links
+    {
+        float:right;
+        margin-right:-10px;
+    }
+}
+
+@media(min-width: 480px) and (max-width: 767px) {
+
+    .navbar-top-links
+    {
+        float:right;
+        margin-right:-10px;
+    }
+}
+@media (min-width: 768px) and (max-width: 992px) {
+ 
+}
+@media (min-width: 992px) and (max-width: 1200px) {
+ 
+}
+@media(min-width: 1200px) {
+ 
 }

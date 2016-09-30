@@ -14,9 +14,7 @@ namespace HardaGroup.ERP.Web.Controllers
 
         public ActionResult Default()
         {
-            B_SupplierInformation dS = new B_SupplierInformation();
-            dS.GetAll();
-            
+
             return View();
         }
 

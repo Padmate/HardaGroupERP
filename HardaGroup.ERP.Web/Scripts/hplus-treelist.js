@@ -17,7 +17,6 @@
             //遍历匹配元素的集合
             return this.each(function () {
 
-                debugger
                 var o = options;
                 //将元素集合赋给变量
                 var obj = $(this);

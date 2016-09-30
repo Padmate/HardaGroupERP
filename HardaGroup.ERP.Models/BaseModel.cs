@@ -10,6 +10,10 @@ namespace HardaGroup.ERP.Models
 {
     public class BaseModel
     {
+        /// <summary>
+        /// 用于bootstrap table field 占位
+        /// </summary>
+        public string ButtonColumn { get; set; }
         #region EXT
         //public int page { get; set; }
         //public int limit { get; set; }

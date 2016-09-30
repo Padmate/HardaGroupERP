@@ -119,10 +119,12 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Areas\UserManage\UserManageAreaRegistration.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\TreeDataConfiguration.cs" />
+    <Compile Include="Controllers\UserManage\UserTypeController.cs" />
     <Compile Include="Filters\AuthorizationAttribute.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -131,10 +133,13 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\animate.min.css" />
+    <Content Include="Content\bootstrap-datetimepicker.css" />
+    <Content Include="Content\bootstrap-table.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\bootstrap.min.css-v=3.3.5.css" />
     <Content Include="Content\Common.css" />
+    <Content Include="Content\customer-bootstrap-table.css" />
     <Content Include="Content\font-awesome.min.css-v=4.4.0.css" />
     <Content Include="Content\login.css" />
     <Content Include="Content\patterns\header-profile-skin-1.png" />
@@ -149,6 +154,11 @@
     <Content Include="fonts\glyphicons-halflings-regular.eot-" />
     <Content Include="fonts\glyphicons-halflings-regular.woff2" />
     <Content Include="fonts\fontawesome-webfont.eot-" />
+    <Content Include="Areas\UserManage\Views\web.config" />
+    <Content Include="Areas\UserManage\Views\UserType\Index.cshtml" />
+    <Content Include="Areas\UserManage\Views\_ViewStart.cshtml" />
+    <Content Include="Areas\UserManage\Views\UserType\Add.cshtml" />
+    <Content Include="Areas\UserManage\Views\UserType\Edit.cshtml" />
     <None Include="fonts\fontawesome-webfont.eot" />
     <Content Include="fonts\fontawesome-webfont.svg" />
     <None Include="fonts\fontawesome-webfont.ttf" />
@@ -186,7 +196,21 @@
     <Content Include="images\success.png" />
     <Content Include="images\user.png" />
     <Content Include="images\wenku_logo.png" />
+    <Content Include="Scripts\bootstrap-datetimepicker\bootstrap-datetimepicker.js" />
+    <Content Include="Scripts\bootstrap-datetimepicker\bootstrap-datetimepicker.min.js" />
+    <Content Include="Scripts\bootstrap-datetimepicker\customer-datetimepicker.js" />
+    <Content Include="Scripts\bootstrap-datetimepicker\locales\bootstrap-datetimepicker.zh-CN.js" />
+    <Content Include="Scripts\bootstrap-table\bootstrap-table-zh-CN.js" />
+    <Content Include="Scripts\bootstrap-table\bootstrap-table.js" />
+    <Content Include="Scripts\bootstrap-table\customer-bootstrap-table.js" />
+    <Content Include="Scripts\bootstrap-table\editable\bootstrap-table-editable.js" />
+    <Content Include="Scripts\bootstrap-table\editable\bootstrap-table-editable.min.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Scripts\bootstrap-table\xeditable\css\bootstrap-editable.css" />
+    <Content Include="Scripts\bootstrap-table\xeditable\img\clear.png" />
+    <Content Include="Scripts\bootstrap-table\xeditable\img\loading.gif" />
+    <Content Include="Scripts\bootstrap-table\xeditable\js\bootstrap-editable.js" />
+    <Content Include="Scripts\bootstrap-table\xeditable\js\bootstrap-editable.min.js" />
     <Content Include="Scripts\contabs.js" />
     <Content Include="Scripts\contabs.min.js" />
     <Content Include="Scripts\hplus-treelist.js" />
