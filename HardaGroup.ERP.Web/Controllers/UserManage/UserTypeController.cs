@@ -15,6 +15,7 @@ namespace HardaGroup.ERP.Web.Controllers.UserManage
         #region 
         public ActionResult Index()
         {
+            
             return View();
         }
 

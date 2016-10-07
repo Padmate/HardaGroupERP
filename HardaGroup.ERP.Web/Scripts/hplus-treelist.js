@@ -62,7 +62,7 @@ function generatelist(data)
         {
             dynamicHtml += '<li>';
             dynamicHtml += '<a class="J_menuItem" href="' + data.href + '" data-id="'+data.id+'">';
-            //dynamicHtml += '<i class="'+data.iconCls+'"></i>';
+            dynamicHtml += '<i class="'+data.iconCls+'"></i>';
             dynamicHtml += '<span class="nav-label">'+data.text+'</span>';
             dynamicHtml += '</a>';
             dynamicHtml += '</li>';

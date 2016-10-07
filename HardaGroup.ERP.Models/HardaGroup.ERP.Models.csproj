@@ -43,6 +43,7 @@
     <Compile Include="BaseModel.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="M_Login.cs" />
+    <Compile Include="M_MonthCostProduction.cs" />
     <Compile Include="M_SupplierInformation.cs" />
     <Compile Include="M_Tree.cs" />
     <Compile Include="M_User.cs" />

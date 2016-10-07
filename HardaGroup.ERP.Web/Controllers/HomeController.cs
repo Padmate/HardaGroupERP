@@ -34,7 +34,7 @@ namespace HardaGroup.ERP.Web.Controllers
             //当前登录用户
             var user = GetCurrentUser();
             //根据当前用户的角色查找菜单
-            string userType = "admin";
+            string userType = "finance";
             var treeData = TreeConfig.Init.TreeDatas(userType);
 
 
