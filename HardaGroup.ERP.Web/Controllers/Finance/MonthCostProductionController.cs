@@ -1,4 +1,5 @@
-﻿using HardaGroup.ERP.Models;
+﻿using HardaGroup.ERP.DataAccess;
+using HardaGroup.ERP.Models;
 using HardaGroup.ERP.Service;
 using HardaGroup.ERP.Utility;
 using HardaGroup.ERP.Web.Filters;
@@ -16,6 +17,15 @@ namespace HardaGroup.ERP.Web.Controllers.Finance
     {
         public ActionResult Index()
         {
+            D_Common dCommon = new D_Common();
+            //查找所有的物料类别
+            var allCostItems = dCommon.GetAllCostItem();
+            ViewData["jsonAllCostItems"] = JsonHandler.ToJson(allCostItems);
+
+            //查询会计区间
+            var months = dCommon.GetAllMonth();
+            ViewData["month"] = months;
+
 
             return View();
         }

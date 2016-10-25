@@ -51,6 +51,7 @@
     <Compile Include="DBConfiguration\CompanyInfoConfiguration.cs" />
     <Compile Include="DBConfiguration\UserConfiguration.cs" />
     <Compile Include="DBConfiguration\UserTypeConfiguration.cs" />
+    <Compile Include="D_Common.cs" />
     <Compile Include="D_MonthCostProduction.cs" />
     <Compile Include="D_SupplierInformation.cs" />
     <Compile Include="DBConfiguration\SupplierInformationConfiguration.cs" />

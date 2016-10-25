@@ -39,28 +39,11 @@ namespace HardaGroup.ERP.Service
             //循环每一条月成本数据
             foreach (var monthCostData in pageResult)
             {
-                //MonthCostProduction pmuSearch = new MonthCostProduction()
-                //{
-                //    MonthId = search.MonthId,
-                //    ProdId = monthCostData.ProdId,
-                //    MkTypeId = monthCostData.MkTypeId
-                //};
-                //var allpmuList = GetPassMatUseByMonthCostProduction(pmuSearch, allMonthCostProductions, allMonthPassMatUses);
-                var moneyDetail = dProduction.GetMoneyDetail(monthCostData.ProdId, search.MonthId);
-                monthCostData.ZJCLMoney = moneyDetail.ZJCLMoney;
-                monthCostData.SFMoney = moneyDetail.SFMoney;
-                monthCostData.PTMoney = moneyDetail.PTMoney;
-                monthCostData.BZMoney = moneyDetail.BZMoney;
-                monthCostData.ZZMoney = moneyDetail.ZZMoney;
-                monthCostData.ZJRGMoney = moneyDetail.ZJRGMoney;
-                monthCostData.MJFFTMoney = moneyDetail.MJFFTMoney;
-                monthCostData.Money = monthCostData.ZJCLMoney + monthCostData.SFMoney + monthCostData.PTMoney
-                    + monthCostData.BZMoney + monthCostData.ZZMoney + monthCostData.ZJRGMoney + monthCostData.MJFFTMoney;
-                if(monthCostData.Quantity !=0)
-                {
-                    monthCostData.Cost = monthCostData.Money / monthCostData.Quantity;
-
-                }
+                //获取所有物料列表的数据
+                monthCostData.MoneyDetails = dProduction.GetMoneyDetails(monthCostData.ProdId, search.MonthId);
+                monthCostData.Cost = monthCostData.MoneyDetails.Sum(m => m.TotalCost);
+                monthCostData.Money = monthCostData.Cost * monthCostData.Quantity;
+                
             }
 
 
@@ -152,15 +135,11 @@ namespace HardaGroup.ERP.Service
                 ProdSpec = entity.ProdSpec,
                 Quantity = entity.Quantity,
                 UnitName = entity.UnitName,
-                BZMoney = entity.BZMoney,
-                CYFPMoney = entity.CYFPMoney,
-                MJFFTMoney = entity.MJFFTMoney,
-                PTMoney = entity.PTMoney,
-                SFMoney = entity.SFMoney,
-                ZJCLMoney = entity.ZJCLMoney,
-                ZJRGMoney = entity.ZJRGMoney,
-                ZZMoney = entity.ZZMoney
-               
+                MoneyDetails = entity.MoneyDetails.Select(m => new M_MoneyDetail() { 
+                    DefCostItemId = m.DefCostItemId,
+                    TotalCost = m.TotalCost
+                }).ToList()
+
             };
             return model;
         }

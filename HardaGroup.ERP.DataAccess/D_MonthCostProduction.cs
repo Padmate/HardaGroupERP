@@ -135,7 +135,7 @@ namespace HardaGroup.ERP.DataAccess
         /// <summary>
         /// 获取Bom费用记录明细
         /// </summary>
-        public MoneyDetail GetMoneyDetail(string bomId, string monthId)
+        public List<MoneyDetail> GetMoneyDetails(string bomId, string monthId)
         {
             string sql = @"
                             WITH bomMaterials AS(
@@ -165,21 +165,15 @@ namespace HardaGroup.ERP.DataAccess
 	
                             )
                             SELECT 
-                             isnull(sum (case when DefCostItemId = '001' then TotalCost else 0 end),0) ZJCLMoney,  --直接材料
-                             isnull(sum (case when DefCostItemId = '002' then TotalCost else 0 end),0) SFMoney,--色粉
-                             isnull(sum (case when DefCostItemId = '003' then TotalCost else 0 end),0) CYFPMoney,--差异分配额
-                             isnull(sum (case when DefCostItemId = '004' then TotalCost else 0 end),0) PTMoney,--配套
-                             isnull(sum (case when DefCostItemId = '005' then TotalCost else 0 end),0) BZMoney,--包装
-                             isnull(sum (case when DefCostItemId = '006' then TotalCost else 0 end),0) ZZMoney,--制造费用
-                             isnull(sum (case when DefCostItemId = '007' then TotalCost else 0 end),0) ZJRGMoney,--直接人工费
-                             isnull(sum (case when DefCostItemId = '008' then TotalCost else 0 end),0) MJFFTMoney --模具费分摊
-
+                             --case when DefCostItemId ='' then 'othermoney' else DefCostItemId end as DefCostItemId,
+                            DefCostItemId,
+							 sum(TotalCost) as TotalCost
                             from 
 
                             (
                             select 
                             T1.DefCostItemId, --物料类别
-                            app.accumulate*T2.Cost as TotalCost
+                            app.accumulate*T2.Cost as TotalCost --单位成本
 
                             from 
                             (
@@ -194,7 +188,7 @@ namespace HardaGroup.ERP.DataAccess
                             LEFT JOIN comProduct T1 ON app.ProdId=T1.ProdId
                             --过滤找不到费用的数据
                             Inner JOIN PassProdCost T2 ON app.ProdId = T2.ProdId and T2.MonthId = @MonthId 
-                            ) baseapp";
+                            ) baseapp group by DefCostItemId";
 
             var args = new DbParameter[] {
                 new SqlParameter {ParameterName = "BomId", Value = bomId},
@@ -204,7 +198,7 @@ namespace HardaGroup.ERP.DataAccess
 
             var result = query.ToList();
 
-            return result.First();
+            return result;
         }
 
         public List<PassMatUse> GetAllMonthPassMatUse(string monthId)

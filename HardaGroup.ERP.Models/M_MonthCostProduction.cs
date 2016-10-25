@@ -50,47 +50,23 @@ namespace HardaGroup.ERP.Models
 
         public decimal Quantity { get; set; }
 
-        #region 金额列
+        public List<M_MoneyDetail> MoneyDetails { get; set; }
+
+        
+
+    }
+
+    public class M_MoneyDetail
+    {
         /// <summary>
-        /// 差异分配额
+        /// 物料类别Id
         /// </summary>
-        public decimal CYFPMoney { get; set; }
+        public string DefCostItemId { get; set; }
 
         /// <summary>
-        /// 直接材料
+        /// 总价格
         /// </summary>
-        public decimal ZJCLMoney { get; set; }
-
-        /// <summary>
-        /// 色粉
-        /// </summary>
-        public decimal SFMoney { get; set; }
-
-        /// <summary>
-        /// 配套
-        /// </summary>
-        public decimal PTMoney { get; set; }
-
-        /// <summary>
-        /// 包装
-        /// </summary>
-        public decimal BZMoney { get; set; }
-
-        /// <summary>
-        /// 制造费用
-        /// </summary>
-        public decimal ZZMoney { get; set; }
-
-        /// <summary>
-        /// 直接人工费用
-        /// </summary>
-        public decimal ZJRGMoney { get; set; }
-
-        /// <summary>
-        /// 模具费分摊
-        /// </summary>
-        public decimal MJFFTMoney { get; set; }
-        #endregion
-
+        public decimal TotalCost { get; set; }
+        
     }
 }

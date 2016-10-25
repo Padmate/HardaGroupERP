@@ -279,6 +279,10 @@
     <None Include="Project_Readme.html" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\HardaGroup.ERP.DataAccess\HardaGroup.ERP.DataAccess.csproj">
+      <Project>{6c062c7d-f08d-4858-b74c-eb5641f305c5}</Project>
+      <Name>HardaGroup.ERP.DataAccess</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HardaGroup.ERP.Entities\HardaGroup.ERP.Entities.csproj">
       <Project>{42d08d3a-b9fb-491b-a1e1-9cebbfeeb848}</Project>
       <Name>HardaGroup.ERP.Entities</Name>
