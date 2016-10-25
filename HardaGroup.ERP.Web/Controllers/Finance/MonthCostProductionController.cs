@@ -26,11 +26,16 @@ namespace HardaGroup.ERP.Web.Controllers.Finance
             String strReqStream = srRequest.ReadToEnd();
             M_MonthCostProduction model = JsonHandler.UnJson<M_MonthCostProduction>(strReqStream);
 
+            PageResult<M_MonthCostProduction> pageResult = new PageResult<M_MonthCostProduction>(0,new List<M_MonthCostProduction>());
+            if(string.IsNullOrEmpty(model.MonthId))
+            {
+                return Json(pageResult);
+            }
             B_MonthCostProduction bMonthCostProduction = new B_MonthCostProduction();
             var pageData = bMonthCostProduction.GetPageData(model);
             var totalCount = bMonthCostProduction.GetPageDataTotalCount(model);
 
-            PageResult<M_MonthCostProduction> pageResult = new PageResult<M_MonthCostProduction>(totalCount, pageData);
+            pageResult = new PageResult<M_MonthCostProduction>(totalCount, pageData);
             return Json(pageResult);
         }
 

@@ -61,6 +61,10 @@ namespace HardaGroup.ERP.DataAccess
             {
                 queryable = queryable.Where(a => a.ProdId == search.ProdId);
             }
+            if (!string.IsNullOrEmpty(search.ProdName))
+            {
+                queryable = queryable.Where(a => a.ProdName == search.ProdName);
+            }
             #endregion
 
             var result = queryable.OrderByDescending(a => a.ProdId)
@@ -69,6 +73,30 @@ namespace HardaGroup.ERP.DataAccess
             .ToList();
 
             return result;
+        }
+
+        private void test(int skip, int limit,string monthId)
+        {
+            System.Data.SqlClient.SqlParameter[] parameters = {   
+                new System.Data.SqlClient.SqlParameter("@startIndex",skip),  
+                new System.Data.SqlClient.SqlParameter("@endIndex",skip+limit),  
+                new System.Data.SqlClient.SqlParameter("@monthId", monthId)  
+                };
+            //parameters[2].Direction = System.Data.ParameterDirection.Output;
+            var slt = _dbContext.Database.SqlQuery<MonthCostProduction>("exec pro_page @startIndex,@endIndex,@monthId", parameters);
+            var aa = slt.ToList();
+            string AllCount = parameters[2].Value.ToString();  
+        }
+
+        public MoneyDetail testDetail(string bomId, string monthId)
+        {
+            System.Data.SqlClient.SqlParameter[] parameters = {   
+                new System.Data.SqlClient.SqlParameter("@bomId",bomId),  
+                new System.Data.SqlClient.SqlParameter("@monthId", monthId)  
+                };
+            var slt = _dbContext.Database.SqlQuery<MoneyDetail>("exec pro_pagetest @bomId,@monthId", parameters);
+            var result =  slt.ToList();
+            return result.First();
         }
 
         public int GetMonthCostProductionPageDataCount(MonthCostProduction search)
@@ -93,6 +121,10 @@ namespace HardaGroup.ERP.DataAccess
             if (!string.IsNullOrEmpty(search.ProdId))
             {
                 queryable = queryable.Where(a => a.ProdId == search.ProdId);
+            }
+            if (!string.IsNullOrEmpty(search.ProdName))
+            {
+                queryable = queryable.Where(a => a.ProdName == search.ProdName);
             }
             #endregion
             var result = queryable.ToList().Count();
@@ -133,30 +165,31 @@ namespace HardaGroup.ERP.DataAccess
 	
                             )
                             SELECT 
-                             sum (case when DefCostItemId = '001' then TotalCost else 0 end) ZJCLMoney,  --直接材料
-                            sum (case when DefCostItemId = '002' then TotalCost else 0 end) SFMoney,--色粉
-                            sum (case when DefCostItemId = '003' then TotalCost else 0 end) CYFPMoney,--差异分配额
-                            sum (case when DefCostItemId = '004' then TotalCost else 0 end) PTMoney,--配套
-                            sum (case when DefCostItemId = '005' then TotalCost else 0 end) BZMoney,--包装
-                            sum (case when DefCostItemId = '006' then TotalCost else 0 end) ZZMoney,--制造费用
-                            sum (case when DefCostItemId = '007' then TotalCost else 0 end) ZJRGMoney,--直接人工费
-                            sum (case when DefCostItemId = '008' then TotalCost else 0 end) MJFFTMoney --模具费分摊
+                             isnull(sum (case when DefCostItemId = '001' then TotalCost else 0 end),0) ZJCLMoney,  --直接材料
+                             isnull(sum (case when DefCostItemId = '002' then TotalCost else 0 end),0) SFMoney,--色粉
+                             isnull(sum (case when DefCostItemId = '003' then TotalCost else 0 end),0) CYFPMoney,--差异分配额
+                             isnull(sum (case when DefCostItemId = '004' then TotalCost else 0 end),0) PTMoney,--配套
+                             isnull(sum (case when DefCostItemId = '005' then TotalCost else 0 end),0) BZMoney,--包装
+                             isnull(sum (case when DefCostItemId = '006' then TotalCost else 0 end),0) ZZMoney,--制造费用
+                             isnull(sum (case when DefCostItemId = '007' then TotalCost else 0 end),0) ZJRGMoney,--直接人工费
+                             isnull(sum (case when DefCostItemId = '008' then TotalCost else 0 end),0) MJFFTMoney --模具费分摊
 
                             from 
 
                             (
-                            select app.*,
-                            IsNull(T1.ProdName, '') AS ProdName,
-                            IsNull(T1.ProdSpec, '') AS ProdSpec,
+                            select 
                             T1.DefCostItemId, --物料类别
-                            T2.Cost,
                             app.accumulate*T2.Cost as TotalCost
 
                             from 
                             (
-	                            select * from bomMaterials where ProdId not in 
-	                            --过滤不是最终层级的数据
-	                            (select ProdId from bomMaterials where ProdId in (select BomId from bomMaterials))
+	                             --过滤不是最后层级的数据
+	                            select * from (
+									select a.*,
+									(select count(*) from bomMaterials b where b.BOMId = a.prodid) as childNodes  --当前数据是否含有子节点（即是不是最后一层）
+									from bomMaterials a
+								) temp where temp.childNodes =0
+
                             )app
                             LEFT JOIN comProduct T1 ON app.ProdId=T1.ProdId
                             --过滤找不到费用的数据

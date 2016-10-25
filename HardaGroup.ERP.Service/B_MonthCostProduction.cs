@@ -22,7 +22,8 @@ namespace HardaGroup.ERP.Service
             MonthCostProduction searchModel = new MonthCostProduction()
             {
                 MonthId = search.MonthId,
-                ProdId = search.ProdId
+                ProdId = search.ProdId,
+                ProdName = search.ProdName
             };
 
             var offset = search.offset;
@@ -32,9 +33,9 @@ namespace HardaGroup.ERP.Service
             var pageResult = dProduction.GetMonthCostProductionPageData(searchModel, offset, limit);
             
             //获取所有的月成本数据记录
-            var allMonthCostProductions = dProduction.GetAllMonthCostProduction(search.MonthId);
+            //var allMonthCostProductions = dProduction.GetAllMonthCostProduction(search.MonthId);
             //获取所有的月成本分析记录
-            var allMonthPassMatUses = dProduction.GetAllMonthPassMatUse(search.MonthId);
+            //var allMonthPassMatUses = dProduction.GetAllMonthPassMatUse(search.MonthId);
             //循环每一条月成本数据
             foreach (var monthCostData in pageResult)
             {
@@ -53,8 +54,13 @@ namespace HardaGroup.ERP.Service
                 monthCostData.ZZMoney = moneyDetail.ZZMoney;
                 monthCostData.ZJRGMoney = moneyDetail.ZJRGMoney;
                 monthCostData.MJFFTMoney = moneyDetail.MJFFTMoney;
+                monthCostData.Money = monthCostData.ZJCLMoney + monthCostData.SFMoney + monthCostData.PTMoney
+                    + monthCostData.BZMoney + monthCostData.ZZMoney + monthCostData.ZJRGMoney + monthCostData.MJFFTMoney;
+                if(monthCostData.Quantity !=0)
+                {
+                    monthCostData.Cost = monthCostData.Money / monthCostData.Quantity;
 
-
+                }
             }
 
 
@@ -71,7 +77,9 @@ namespace HardaGroup.ERP.Service
             MonthCostProduction searchModel = new MonthCostProduction()
             {
                 MonthId = search.MonthId,
-                ProdId = search.ProdId
+                ProdId = search.ProdId,
+                ProdName = search.ProdName
+
             };
 
 

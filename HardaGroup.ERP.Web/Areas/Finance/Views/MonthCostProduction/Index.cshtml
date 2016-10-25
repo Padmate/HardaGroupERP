@@ -22,7 +22,7 @@
 
                         <div class="clearfix"></div>
                     </div>
-                    <div id="collapseSearch" class="panel-collapse collapse">
+                    <div id="collapseSearch" class="panel-collapse">
                         <div class="panel-body">
                             <div class="row search-row">
                                 <div class="col-xs-12 col-is-6 col-sm-4 col-md-4">
@@ -31,7 +31,7 @@
 
                                     </div>
                                     <div class="col-xs-7 col-is-8 col-sm-7 col-md-8">
-                                        <input class="input-small-full" id="tbSearchMonthId" type="text" />
+                                        <input class="input-small-full" id="tbSearchMonthId" type="text" value="2016-07"/>
 
                                     </div>
                                 </div>
@@ -53,12 +53,18 @@
             </div>
             <div class="customer-table">
                 <div id="toolbar">
+                    @*<select class="form-control">
+                        <option value="basic">Export Basic</option>
+                        <option value="all">Export All</option>
+                        <option value="selected">Export Selected</option>
+
+                    </select>
                     <a id="btnAdd" class="btn btn-outline btn-primary" title="新增">
                         <i class="glyphicon glyphicon-plus"></i>
                     </a>
                     <a id="btnDelete" class="btn btn-outline btn-warning" title="删除">
                         <i class="glyphicon glyphicon-trash"></i>
-                    </a>
+                    </a>*@
                 </div>
                 <table id="table"></table>
 
@@ -87,6 +93,12 @@
         InitTable();
         InitToolBarButton();
         InitModalEvent();
+        
+        //$('#toolbar').find('select').change(function () {
+        //    $("#table").bootstrapTable('refreshOptions', {
+        //        exportDataType: $(this).val()
+        //    });
+        //});
 
     });
     $(window).resize(function () {
@@ -111,6 +123,11 @@
             toolbar:'#toolbar',
             showRefresh:true,
             search: false,
+            filterControl: true,   //显示过滤
+            filterShowClear: true,  //显示清空过滤按钮
+            showExport: true, //数据导出
+            exportDataType: 'selected', // 'basic', 'all', 'selected'.
+            exportTypes:['json', 'xml', 'csv', 'txt', 'sql', 'excel'],
             clickToSelect: true,     //单击行选中数据
             queryParams: ConstructQueryParams,
             showColumns:true,
@@ -124,14 +141,21 @@
                 visible:false,
             },
             {
+                field: 'MonthId',
+                title: '月份区间',
+                filterControl:"input"
+            },
+            {  
                 field: 'ProdId',
-                title: '物料编号'
-
-
+                title: '物料编号',
+                filterControl: "input"
             },
             {
                 field: 'ProdName',
-                title: '物料名称'
+                title: '物料名称',
+                filterControl: "input",
+                filterStartsWithSearch:true
+
             }, {
                 field: 'ProdSpec',
                 title: '物料规格'
@@ -184,19 +208,28 @@
                 RefreshTable();
             }
         };
+
+        
     }
 
 
 
     function ConstructQueryParams(param)
     {
+        debugger;
+        
+        var filterObj = {};
+        if(param.filter != null)
+        {
+            filterObj = JSON.parse(param.filter);
+        }
         var params = {
             limit: param.limit, //页面大小
             offset:param.offset,//偏移数量
             page: param.offset / param.limit, //页码
             MonthId: $("#tbSearchMonthId").val(),
-            ProdId: $("#tbSearchProdId").val()
-            
+            ProdId: filterObj.ProdId == null ? "" : filterObj.ProdId,
+            ProdName: filterObj.ProdName ==null?"":filterObj.ProdName
         };
         return params;
     }

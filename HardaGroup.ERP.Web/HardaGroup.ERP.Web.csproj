@@ -211,6 +211,11 @@
     <Content Include="Scripts\bootstrap-table\customer-bootstrap-table.js" />
     <Content Include="Scripts\bootstrap-table\editable\bootstrap-table-editable.js" />
     <Content Include="Scripts\bootstrap-table\editable\bootstrap-table-editable.min.js" />
+    <Content Include="Scripts\bootstrap-table\export\bootstrap-table-export.js" />
+    <Content Include="Scripts\bootstrap-table\export\bootstrap-table-export.min.js" />
+    <Content Include="Scripts\bootstrap-table\export\tableExport.js" />
+    <Content Include="Scripts\bootstrap-table\export\tableExport.min.js" />
+    <Content Include="Scripts\bootstrap-table\filter-control\bootstrap-table-filter-control.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\bootstrap-table\xeditable\css\bootstrap-editable.css" />
     <Content Include="Scripts\bootstrap-table\xeditable\img\clear.png" />
