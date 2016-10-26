@@ -222,11 +222,14 @@
     <Content Include="Scripts\bootstrap-table\xeditable\img\loading.gif" />
     <Content Include="Scripts\bootstrap-table\xeditable\js\bootstrap-editable.js" />
     <Content Include="Scripts\bootstrap-table\xeditable\js\bootstrap-editable.min.js" />
+    <Content Include="Scripts\calc.min.js" />
     <Content Include="Scripts\contabs.js" />
     <Content Include="Scripts\contabs.min.js" />
     <Content Include="Scripts\hplus-treelist.js" />
     <Content Include="Scripts\hplus.js" />
     <Content Include="Scripts\hplus.min.js" />
+    <Content Include="Scripts\jquery-1.10.2.js" />
+    <Content Include="Scripts\jquery-1.10.2.min.js" />
     <Content Include="Scripts\jquery-ui-1.10.4.min.js" />
     <Content Include="Scripts\jquery.base64.js" />
     <Content Include="Scripts\jquery.form.js" />

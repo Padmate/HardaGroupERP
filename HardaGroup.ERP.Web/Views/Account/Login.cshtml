@@ -34,14 +34,14 @@
             </div>
         </div>
         <div class="col-sm-5">
-            <form id="formLogin" action="/Account/Login" method="post" enctype="multipart/form-data">
+            <div class="form">
                 <h4 class="no-margins">登录：</h4>
                 <p class="m-t-md" id="errormessage">登录到ERP</p>
                 <input type="text" class="form-control uname" id="username" name="UserName" placeholder="用户名" />
                 <input type="password" class="form-control pword m-b" id="password" name="Password" placeholder="密码" />
                 <a href="">忘记密码了？</a>
-                <button class="btn btn-success btn-block">登录</button>
-            </form>
+                <button class="btn btn-success btn-block btn-login">登录</button>
+            </div>
         </div>
     </div>
     <div class="signup-footer">
@@ -53,18 +53,50 @@
 <script>
     $(function () {
 
-        var options = {
-            type: "POST",
-            url: "/Account/Login",
-            dataType: "json",
-            beforeSubmit: showRequest,
-            success: showResponse
-        };
-        $('#formLogin').ajaxForm(options);
+        $(".btn-login").click(function () {
+            Login();
+        });
+
+        document.onkeydown = function (e) {
+            var ev = document.all ? window.event : e;
+            if (ev.keyCode == 13) {
+                Login();
+
+            }
+        }
+
+
 
     });
 
-    function showRequest(formData, jqForm, options) {
+    function Login()
+    {
+        var pass = BeforeLogin();
+        if (!pass) return false;
+
+        var obj = {
+            UserName: $("#username").val(),
+            Password: $("#password").val()
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/Account/Login",
+            data: obj,
+            dataType: "json",
+            async: false,   //同步
+            success: function (message) {
+                if (message.Success) {
+                    
+                    window.location.href = "/Home/Index";
+                } else {
+                    $("#errormessage").html(message.Content);
+                }
+            }
+        });
+    }
+
+    function BeforeLogin() {
         //密码进行hash加密
         var username = $("#username").val();
         var password = $("#password").val();
@@ -85,15 +117,8 @@
 
         $("#password").val(base64Hash);
 
+        return true;
     }
 
-    //
-    function showResponse(message) {
-        if (message.Success) {
-            window.location.href = "/Home/Index";
-
-        } else {
-            $("#errormessage").html(message.Content);
-        }
-    }
+   
 </script>
