@@ -59,11 +59,11 @@ namespace HardaGroup.ERP.DataAccess
             #region 查询条件
             if (!string.IsNullOrEmpty(search.ProdId))
             {
-                queryable = queryable.Where(a => a.ProdId == search.ProdId);
+                queryable = queryable.Where(a => a.ProdId.ToLower().Contains(search.ProdId.ToLower()));
             }
             if (!string.IsNullOrEmpty(search.ProdName))
             {
-                queryable = queryable.Where(a => a.ProdName == search.ProdName);
+                queryable = queryable.Where(a => a.ProdName.ToLower().Contains(search.ProdName.ToLower()));
             }
             #endregion
 
@@ -120,11 +120,11 @@ namespace HardaGroup.ERP.DataAccess
             #region 查询条件
             if (!string.IsNullOrEmpty(search.ProdId))
             {
-                queryable = queryable.Where(a => a.ProdId == search.ProdId);
+                queryable = queryable.Where(a => a.ProdId.ToLower().Contains(search.ProdId.ToLower()));
             }
             if (!string.IsNullOrEmpty(search.ProdName))
             {
-                queryable = queryable.Where(a => a.ProdName == search.ProdName);
+                queryable = queryable.Where(a => a.ProdName.ToLower().Contains(search.ProdName.ToLower()));
             }
             #endregion
             var result = queryable.ToList().Count();

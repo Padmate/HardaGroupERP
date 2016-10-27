@@ -190,6 +190,7 @@
 
     function InitTable()
     {
+        
         var columns = ConstructColumns();
 
         $('#table').bootstrapTable({
@@ -221,6 +222,12 @@
             columns: columns
 
         });
+
+
+        $(window).resize(function () {
+            $('#table').bootstrapTable('resetView');
+        });
+
 
         document.onkeydown = function (e) {
             var ev = document.all ? window.event : e;
