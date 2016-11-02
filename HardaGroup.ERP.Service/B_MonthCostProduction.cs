@@ -72,6 +72,46 @@ namespace HardaGroup.ERP.Service
         }
 
         /// <summary>
+        /// 获取分页数据
+        /// </summary>
+        /// <returns></returns>
+        public List<M_BomDetail> GetBomDetailPageData(M_BomDetail search)
+        {
+            D_MonthCostProduction dProduction = new D_MonthCostProduction();
+
+            var searchModel = new BomDetail()
+            {
+                BomId = search.BomId
+            };
+
+            var offset = search.offset;
+            var limit = search.limit;
+
+
+            var pageResult = dProduction.GetBomDetailPageData(searchModel, offset, limit);
+
+            var result = pageResult.Select(a => ConverBomDetailEntityToModel(a)).ToList();
+
+            return result;
+        }
+
+
+        public int GetBomDetailPageDataTotalCount(M_BomDetail search)
+        {
+            D_MonthCostProduction dProduction = new D_MonthCostProduction();
+
+            var searchModel = new BomDetail()
+            {
+                BomId = search.BomId
+            };
+
+
+            var totalCount = dProduction.GetBomDetailPageDataTotalCount(searchModel);
+
+            return totalCount;
+        }
+
+        /// <summary>
         /// 根据月成本数据获取其成本分析列表
         /// </summary>
         /// <param name="search">查询条件</param>
@@ -140,6 +180,30 @@ namespace HardaGroup.ERP.Service
                     TotalCost = m.TotalCost
                 }).ToList()
 
+            };
+            return model;
+        }
+
+
+        private M_BomDetail ConverBomDetailEntityToModel(BomDetail entity)
+        {
+            if (entity == null) return null;
+
+            var model = new M_BomDetail()
+            {
+                RowId = entity.RowId,
+                ProdId = entity.ProdId,
+                BomId = entity.BomId,
+                ProdName = entity.ProdName,
+                ProdSpec = entity.ProdSpec,
+                UnitName = entity.UnitName,
+                BaseNumber = entity.BaseNumber,
+                StdUseQty = entity.StdUseQty,
+                LossRate = entity.LossRate,
+                RoundingPre = entity.RoundingPre,
+                Accumulate = entity.Accumulate,
+                UnitCost = entity.UnitCost,
+                DefCostItemId = entity.DefCostItemId
             };
             return model;
         }

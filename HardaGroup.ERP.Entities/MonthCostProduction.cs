@@ -95,4 +95,67 @@ namespace HardaGroup.ERP.Entities
         public decimal TotalCost { get; set; }
         
     }
+
+    /// <summary>
+    /// 产品结构明细
+    /// </summary>
+    public class BomDetail
+    {
+        public Int64 RowId { get; set; }
+        public string BomId { get; set; }
+
+        /// <summary>
+        /// 物料编号
+        /// </summary>
+        public string ProdId { get; set; }
+
+        /// <summary>
+        /// 物料名称
+        /// </summary>
+        public string ProdName { get; set; }
+
+        /// <summary>
+        /// 物料规格
+        /// </summary>
+        public string ProdSpec { get; set; }
+
+        /// <summary>
+        /// 单位
+        /// </summary>
+        public string UnitName { get; set; }
+
+        /// <summary>
+        /// 基数
+        /// </summary>
+        public decimal BaseNumber{get;set;}
+
+        /// <summary>
+        /// 标准用量
+        /// </summary>
+	    public decimal StdUseQty{get;set;}
+
+        /// <summary>
+        /// 损耗率
+        /// </summary>
+	    public decimal LossRate{ get;set;}
+        /// <summary>
+        /// 舍入精度
+        /// </summary>
+        public int RoundingPre { get; set; }
+
+        /// <summary>
+        /// 累计用量
+        /// </summary>
+        public decimal Accumulate { get; set; }
+
+        /// <summary>
+        /// 单位成本
+        /// </summary>
+        public decimal UnitCost { get; set; }
+
+        /// <summary>
+        /// 物料类别
+        /// </summary>
+        public string DefCostItemId { get; set; }
+    }
 }

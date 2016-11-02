@@ -75,30 +75,6 @@ namespace HardaGroup.ERP.DataAccess
             return result;
         }
 
-        private void test(int skip, int limit,string monthId)
-        {
-            System.Data.SqlClient.SqlParameter[] parameters = {   
-                new System.Data.SqlClient.SqlParameter("@startIndex",skip),  
-                new System.Data.SqlClient.SqlParameter("@endIndex",skip+limit),  
-                new System.Data.SqlClient.SqlParameter("@monthId", monthId)  
-                };
-            //parameters[2].Direction = System.Data.ParameterDirection.Output;
-            var slt = _dbContext.Database.SqlQuery<MonthCostProduction>("exec pro_page @startIndex,@endIndex,@monthId", parameters);
-            var aa = slt.ToList();
-            string AllCount = parameters[2].Value.ToString();  
-        }
-
-        public MoneyDetail testDetail(string bomId, string monthId)
-        {
-            System.Data.SqlClient.SqlParameter[] parameters = {   
-                new System.Data.SqlClient.SqlParameter("@bomId",bomId),  
-                new System.Data.SqlClient.SqlParameter("@monthId", monthId)  
-                };
-            var slt = _dbContext.Database.SqlQuery<MoneyDetail>("exec pro_pagetest @bomId,@monthId", parameters);
-            var result =  slt.ToList();
-            return result.First();
-        }
-
         public int GetMonthCostProductionPageDataCount(MonthCostProduction search)
         {
             string sql = @"select 
@@ -131,6 +107,130 @@ namespace HardaGroup.ERP.DataAccess
 
             return result;
         }
+
+        /// <summary>
+        /// 产品结构明细
+        /// </summary>
+        /// <param name="search"></param>
+        /// <param name="skip"></param>
+        /// <param name="limit"></param>
+        /// <returns></returns>
+        public List<BomDetail> GetBomDetailPageData(BomDetail search, int skip, int limit)
+        {
+
+            string sql = this.BomDetailPageDataSql();
+
+            var args = new DbParameter[] {
+                 new SqlParameter {ParameterName = "BomId", Value = search.BomId}
+            };
+            var query = _dbContext.Database.SqlQuery<BomDetail>(sql, args);
+
+
+            var result = query.OrderBy(a => a.RowId)
+            .Skip(skip)
+            .Take(limit)
+            .ToList();
+
+            return result;
+        }
+
+        public int GetBomDetailPageDataTotalCount(BomDetail search)
+        {
+            string sql = this.BomDetailPageDataSql();
+
+
+            var args = new DbParameter[] {
+                 new SqlParameter {ParameterName = "BomId", Value = search.BomId}
+            };
+            var query = _dbContext.Database.SqlQuery<BomDetail>(sql, args);
+            var queryable = query.AsQueryable();
+            var result = queryable.ToList().Count();
+
+            return result;
+        }
+
+        private string BomDetailPageDataSql()
+        {
+            string sql = @"WITH bomMaterials AS(
+	                            SELECT 
+	                            BomId,
+	                            ProdId,
+	                            BaseNumber,  --基数
+	                            StdUseQty,   --标准用量
+	                            LossRate,    --损耗率
+	                            RoundingPre, --舍入精度
+	                            Convert(decimal(20,6),(StdUseQty/BaseNumber)*(1+LossRate*0.01)) as Accumulate, --累计用量
+	                            0 as leval FROM prdEnBomMaterials WHERE BomId=@BomId
+
+	                            UNION ALL
+	                            SELECT 
+	                            b.BomId,
+	                            b.ProdId,
+	                            b.BaseNumber,
+	                            b.StdUseQty,
+	                            b.LossRate,
+	                            b.RoundingPre,
+	                            Convert(decimal(20,6),((a.accumulate * b.StdUseQty)/b.BaseNumber)*(1+b.LossRate*0.01)) as accumulate,
+	                            leval+1
+	                             --循环bomMaterials，在prdEnBomMaterials表中查找BomId等于a.ProdId的数据
+	                            FROM bomMaterials a,prdEnBomMaterials b where b.BomId = a.ProdId  
+	
+	
+                            )
+                            SELECT * from 
+                            (
+                            select 
+							app.*,
+                            row_number() over(order by app.ProdId) as RowId, 
+                            T1.ProdName, --物料名称
+							T1.DefCostItemId, --物料类别,
+							T1.ProdSpec, --物料规格
+							UT.UnitName, --单位
+							app.accumulate*isnull(T2.Cost,0) as UnitCost --单位成本
+
+                            from 
+                            (
+	                             --过滤不是最后层级的数据
+	                            select * from (
+									select a.*,
+									(select count(*) from bomMaterials b where b.BOMId = a.prodid) as childNodes  --当前数据是否含有子节点（即是不是最后一层）
+									from bomMaterials a
+								) temp where temp.childNodes =0
+
+                            )app
+                            LEFT JOIN comProduct T1 ON app.ProdId=T1.ProdId
+							LEFT JOIN comUnit UT ON T1.UnitId=UT.UnitId
+                            --过滤找不到费用的数据
+                            left JOIN PassProdCost T2 ON app.ProdId = T2.ProdId
+                            ) baseapp";
+
+            return sql;
+        }
+
+        private void test(int skip, int limit,string monthId)
+        {
+            System.Data.SqlClient.SqlParameter[] parameters = {   
+                new System.Data.SqlClient.SqlParameter("@startIndex",skip),  
+                new System.Data.SqlClient.SqlParameter("@endIndex",skip+limit),  
+                new System.Data.SqlClient.SqlParameter("@monthId", monthId)  
+                };
+            //parameters[2].Direction = System.Data.ParameterDirection.Output;
+            var slt = _dbContext.Database.SqlQuery<MonthCostProduction>("exec pro_page @startIndex,@endIndex,@monthId", parameters);
+            var aa = slt.ToList();
+            string AllCount = parameters[2].Value.ToString();  
+        }
+
+        public MoneyDetail testDetail(string bomId, string monthId)
+        {
+            System.Data.SqlClient.SqlParameter[] parameters = {   
+                new System.Data.SqlClient.SqlParameter("@bomId",bomId),  
+                new System.Data.SqlClient.SqlParameter("@monthId", monthId)  
+                };
+            var slt = _dbContext.Database.SqlQuery<MoneyDetail>("exec pro_pagetest @bomId,@monthId", parameters);
+            var result =  slt.ToList();
+            return result.First();
+        }
+
 
         /// <summary>
         /// 获取Bom费用记录明细

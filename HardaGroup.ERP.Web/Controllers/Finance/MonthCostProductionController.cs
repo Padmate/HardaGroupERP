@@ -30,6 +30,39 @@ namespace HardaGroup.ERP.Web.Controllers.Finance
             return View();
         }
 
+        public ActionResult Detail()
+        {
+            D_Common dCommon = new D_Common();
+            //查找所有的物料类别
+            var allCostItems = dCommon.GetAllCostItem();
+            ViewData["jsonAllCostItems"] = JsonHandler.ToJson(allCostItems);
+
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult GetTreeDetailData(string json)
+        {
+            
+            return Json(json);
+        }
+
+        [HttpPost]
+        public ActionResult GetDetailPageData()
+        {
+            StreamReader srRequest = new StreamReader(Request.InputStream);
+            String strReqStream = srRequest.ReadToEnd();
+            M_BomDetail model = JsonHandler.UnJson<M_BomDetail>(strReqStream);
+
+            B_MonthCostProduction bMonthCostProduction = new B_MonthCostProduction();
+            var pageData = bMonthCostProduction.GetBomDetailPageData(model);
+            var totalCount = bMonthCostProduction.GetBomDetailPageDataTotalCount(model);
+
+            PageResult<M_BomDetail> pageResult = new PageResult<M_BomDetail>(totalCount, pageData);
+            return Json(pageResult);
+        }
+
+
         public ActionResult GetPageData()
         {
             StreamReader srRequest = new StreamReader(Request.InputStream);

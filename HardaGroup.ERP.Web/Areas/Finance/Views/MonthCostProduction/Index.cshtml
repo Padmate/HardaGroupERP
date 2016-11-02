@@ -20,7 +20,7 @@
 
             </div>
             <div class="col-xs-7 col-is-8 col-sm-7 col-md-8">
-                <input class="input-small-full" id="tbSearchProdId" type="text" />
+                <input class="input-small-full" id="tbSearchProdId" type="text" value="FJXM001-0638C" />
 
             </div>
         </div>
@@ -68,16 +68,7 @@
 
     </div>
 </div>
-<!--#region新增-->
-<div class="curd-model modal fade" id="usertypeadd" role="dialog"
-     data-backdrop="static" aria-hidden="true">
-    <div class="modal-dialog small-modal">
-        <div class="modal-content small-modal-content">
-            <div id="divAddContainer"></div>
-        </div>
-    </div>
 
-</div>
 
 
 
@@ -88,8 +79,6 @@
 
     $(document).ready(function () {
         InitTable();
-        InitToolBarButton();
-        InitModalEvent();
         
         //$('#toolbar').find('select').change(function () {
         //    $("#table").bootstrapTable('refreshOptions', {
@@ -183,7 +172,11 @@
 
         columns.push({
             field: 'Money',
-            title: '总成本'
+            title: '总成本',
+            formatter: function (value,row,index) {
+                return '<a href="javaScript:void(0)" onclick=ShowDetail("' + row.ProdId + '") >' + value + '</a>'
+            }
+
         });
         return columns;
     }
@@ -263,132 +256,20 @@
         return params;
     }
 
-    function InitModalEvent() {
-        $('#usertypeadd').on('show.bs.modal', function () {
-            //打开事件
-        });
+    
 
-        $('#usertypeadd').on('hide.bs.modal', function () {
-            // 关闭事件
-            $("#divAddContainer").html("");
-
-        })
-
-
-    }
-
-    function CloseAddScreen() {
-        $('#usertypeadd').modal('hide');
-
-    }
-
-
-    function InitToolBarButton() {
-
-        $("#btnAdd").click(function () {
-            $('#usertypeadd').modal('show');
-            $("#divAddContainer").load("/UserManage/UserType/Add");
-        });
-
-
-
-        $("#btnDelete").click(function () {
-            var selections = $('#table').bootstrapTable('getSelections');
-            if (selections.length == 0) {
-                layer.alert("请选择要将要删除的数据", {
-                    skin: 'layui-layer-molv'
-                            , closeBtn: 0
-                            , shift: 5 //动画类型
-                });
-                return;
-            }
-            var contactIds = [];
-            for (var i = 0; i < selections.length; i++) {
-                var id = selections[i].Id;
-                contactIds.push(id);
-            }
-            //delete records
-            var jsonId = JSON.stringify(contactIds);
-            $.ajax({
-                type: "post",//使用get方法访问后台
-                dataType: "json",//返回json格式的数据
-                url: "/UserManage/UserType/BachDeleteById",
-                data: jsonId,
-                async: false,
-                success: function (message) {
-                    if (message.Success) {
-                        RefreshTable();
-                    } else {
-                        layer.alert(message.Content, {
-                            skin: 'layui-layer-molv'
-                            , closeBtn: 0
-                            , shift: 5 //动画类型
-                        });
-                    }
-
-                }
-            });
-        });
-    }
-
-    function Update(id)
+    function ShowDetail(prodid)
     {
-        //获取选中的行数据
-        var selectRow = $('#table').bootstrapTable('getRowByUniqueId', id);
-
-        var obj = {
-            Id: selectRow.Id,
-            Code: selectRow.Code,
-            Name:selectRow.Name,
+        var option = {
+            title: '物料明细 - '+prodid,
+            width:'90%',
+            height:'90%',
+            content: '/Finance/MonthCostProduction/Detail?bomid=' + prodid
         };
-        var jsonParam = JSON.stringify(obj);
-        $.ajax({
-            type: "POST",
-            url: "/UserManage/UserType/SaveEdit",
-            dataType: "json",
-            data: jsonParam,
-            async: false,   //同步
-            success: function (message) {
-
-                if (!message.Success) {
-                    layer.alert(message.Content, {
-                        skin: 'layui-layer-molv' //样式类名
-                       , closeBtn: 0
-                    });
-                    return;
-                } else {
-                    RefreshTable();
-                }
-            }
-        });
-
+        var popwind = parent.popWindow(option);
+       
     }
-
-    function Remove(id)
-    {
-
-        $.ajax({
-            type: "post",//使用get方法访问后台
-            dataType: "json",//返回json格式的数据
-            url: "/UserManage/UserType/DeleteById",
-            data: {Id:id},
-            async: false,
-            success: function (message) {
-                if (message.Success) {
-                    RefreshTable();
-                } else {
-                    layer.alert(message.Content, {
-                        skin: 'layui-layer-molv'
-                        , closeBtn: 0
-                        , shift: 5 //动画类型
-                    });
-                }
-
-            }
-        });
-
-    }
-
+   
     function RefreshTable()
     {
         $('#table').bootstrapTable('refresh');

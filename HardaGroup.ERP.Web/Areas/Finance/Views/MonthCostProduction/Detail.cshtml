@@ -1,0 +1,163 @@
+﻿
+<style>
+    #loadingImage {
+    position:absolute;
+    width:48px; /*image width */
+    height:48px; /*image height */
+    left:50%; 
+    top:75px;
+    margin-left:-24px; /*image width/2 */
+    margin-top:-24px; /*image height/2 */
+}
+</style>
+<link href="~/Scripts/jquery-treetable/css/jquery.treetable.css" rel="stylesheet" />
+<link href="~/Scripts/jquery-treetable/css/jquery.treetable.theme.default.css" rel="stylesheet" />
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div id="toolbar"></div>
+            <table id="table"></table>
+        </div>
+    </div>
+    
+</div>
+
+<style>
+
+</style>
+<script>
+    var allCostItems = JSON.parse('@Html.Raw(ViewData["jsonAllCostItems"])');
+
+   
+
+    $(function () {
+        InitTable();
+    });
+    function InitTable() {
+
+
+        $('#table').bootstrapTable({
+            height: $(document.body).height() - $("#toolbar").height(),
+            method: 'post',                 //The method type to request remote data.
+            url: '/Finance/MonthCostProduction/GetDetailPageData',
+            dataType: "json",               //The type of data that you are expecting back from the server.
+            contentType: 'application/json',
+            pagination: true,               //True to show a pagination toolbar on table bottom.
+            pageSize: 100,                   //初始化每页显示几条
+            pageNumber: 1,                   //初始化在第几页
+            pageList: [10, 25, 50, 100, 200, 'All'],
+            sidePagination: "server",       //服务端请求
+            idField: 'Id',
+            uniqueId: 'Id',
+            toolbar: '#toolbar',
+            search: false,
+            clickToSelect: true,     //单击行选中数据
+            queryParams: ConstructBomQueryParams,
+            locale: 'zh-cn',
+            showToggle: true,
+            showColumns: true,
+            showExport: true, //数据导出
+            exportDataType: 'basic', // 'basic', 'all', 'selected'.
+            exportTypes: ['excel'],
+            //groupBy: true,
+            //groupByInitExpanded:'all',
+            //groupByField: ['BomId'],
+            columns: [
+            {
+                field: 'Id',
+                title: 'Id',
+                visible: false
+            },
+            {
+                field: 'RowId',
+                title: ''
+            },
+            {
+                field: 'ProdId',
+                title: '物料编号'
+            },
+            {
+                field: 'ProdName',
+                title: '物料名称'
+
+            },
+            {
+                field: 'ProdSpec',
+                title: '物料规格'
+            },
+            {
+                field: 'DefCostItemId',
+                title: '物料类别',
+                formatter: function (value, row, index) {
+                    return DicCostItems(value);
+                }
+            },
+            {
+                field: 'BaseNumber',
+                title: '基数'
+            },
+            {
+                field: 'StdUseQty',
+                title: '标准用量'
+            },
+
+            {
+                field: 'LossRate',
+                title: '损耗率',
+                formatter: function (value,row,index) {
+                    return value + "%";
+                }
+            },
+            {
+                field: 'RoundingPre',
+                title: '舍入精度'
+            },
+            {
+                field: 'UnitName',
+                title: '单位'
+            }, {
+                field: 'Accumulate',
+                title: '累计用量'
+            }, {
+                field: 'UnitCost',
+                title: '单位成本'
+            }
+            ]
+
+        });
+
+
+
+        $(window).resize(function () {
+            $('#table').bootstrapTable('resetView');
+        });
+
+
+
+    }
+
+
+
+    function ConstructBomQueryParams(param) {
+
+        var params = {
+            limit: param.limit, //页面大小
+            offset: param.offset,//偏移数量
+            page: param.offset / param.limit, //页码
+            BomId:'@Request["bomid"]'
+        };
+        return params;
+    }
+
+    function DicCostItems(key) {
+        var value = key;
+        for (var i = 0; i < allCostItems.length; i++) {
+            if (key == allCostItems[i].CostItemId) {
+                value = allCostItems[i].CostItemName;
+                break;
+            }
+        }
+        return value;
+    }
+</script>

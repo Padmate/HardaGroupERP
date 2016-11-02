@@ -17,7 +17,7 @@
                     </div>
                 </div>
                 <ul class="nav sidebar-menu" id="side-menu">
-                    <li>
+                    @*<li>
                         <a href="#">
                             <i class="fa fa-home"></i>
                             <span class="nav-label">主页</span>
@@ -66,7 +66,7 @@
                                 <a class="J_menuItem" href="graph_rickshaw.html" >Rickshaw</a>
                             </li>
                         </ul>
-                    </li>
+                    </li>*@
 
                 </ul>
             </div>
@@ -246,8 +246,33 @@
 
         });
 
-        
     });
+
+    //父级弹窗
+    function popWindow(option)
+    {
+        var title = option.title;
+        var width = option.width;
+        var height = option.height;
+        var content = option.content;
+
+        var topWin = layer.open({
+            type: 2,
+            title: title,
+            shadeClose: true,
+            shade: false,
+            maxmin: true, //开启最大化最小化按钮
+            area: [width, height],
+            content: content
+        });
+
+        return topWin;
+    }
+
+    function closeWindow(window)
+    {
+        layer.close(window);
+    }
 </script>
 <script type="text/javascript" src="~/Scripts/plugins/metisMenu/jquery.metisMenu.js"></script>
 <script type="text/javascript" src="~/Scripts/plugins/slimscroll/jquery.slimscroll.min.js"></script>
