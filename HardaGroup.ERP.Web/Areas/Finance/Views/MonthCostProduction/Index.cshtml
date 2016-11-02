@@ -20,7 +20,7 @@
 
             </div>
             <div class="col-xs-7 col-is-8 col-sm-7 col-md-8">
-                <input class="input-small-full" id="tbSearchProdId" type="text" value="FJXM001-0638C" />
+                <input class="input-small-full" id="tbSearchProdId" type="text" />
 
             </div>
         </div>
@@ -172,10 +172,7 @@
 
         columns.push({
             field: 'Money',
-            title: '总成本',
-            formatter: function (value,row,index) {
-                return '<a href="javaScript:void(0)" onclick=ShowDetail("' + row.ProdId + '") >' + value + '</a>'
-            }
+            title: '总成本'
 
         });
         return columns;
@@ -212,10 +209,15 @@
             queryParams: ConstructQueryParams,
             showColumns:true,
             locale:'zh-cn',
-            columns: columns
+            columns: columns,
+            onDblClickRow: function (row, $element, field) {
+                
+                ShowDetail(row.ProdId)
+            }
 
         });
 
+        
 
         $(window).resize(function () {
             $('#table').bootstrapTable('resetView');
