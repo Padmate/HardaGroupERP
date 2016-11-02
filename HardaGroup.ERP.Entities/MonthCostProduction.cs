@@ -48,6 +48,9 @@ namespace HardaGroup.ERP.Entities
         /// </summary>
         public decimal Money { get; set; }
 
+        /// <summary>
+        /// 产量
+        /// </summary>
         public decimal Quantity { get; set; }
 
         public List<MoneyDetail> MoneyDetails { get; set; }
@@ -101,6 +104,8 @@ namespace HardaGroup.ERP.Entities
     /// </summary>
     public class BomDetail
     {
+        public string MonthId { get; set; }
+
         public Int64 RowId { get; set; }
         public string BomId { get; set; }
 
@@ -144,12 +149,17 @@ namespace HardaGroup.ERP.Entities
         public int RoundingPre { get; set; }
 
         /// <summary>
-        /// 累计用量
+        /// 累计用量(乘以母件用量)
         /// </summary>
         public decimal Accumulate { get; set; }
 
         /// <summary>
-        /// 单位成本
+        /// 金额
+        /// </summary>
+        public decimal Cost { get; set; }
+
+        /// <summary>
+        /// 单位成本(单位累计用量*金额)
         /// </summary>
         public decimal UnitCost { get; set; }
 

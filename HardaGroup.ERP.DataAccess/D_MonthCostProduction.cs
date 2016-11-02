@@ -118,15 +118,9 @@ namespace HardaGroup.ERP.DataAccess
         public List<BomDetail> GetBomDetailPageData(BomDetail search, int skip, int limit)
         {
 
-            string sql = this.BomDetailPageDataSql();
+            var queryable = BomDetailPageDataSql(search);
 
-            var args = new DbParameter[] {
-                 new SqlParameter {ParameterName = "BomId", Value = search.BomId}
-            };
-            var query = _dbContext.Database.SqlQuery<BomDetail>(sql, args);
-
-
-            var result = query.OrderBy(a => a.RowId)
+            var result = queryable.OrderBy(a => a.RowId)
             .Skip(skip)
             .Take(limit)
             .ToList();
@@ -136,20 +130,14 @@ namespace HardaGroup.ERP.DataAccess
 
         public int GetBomDetailPageDataTotalCount(BomDetail search)
         {
-            string sql = this.BomDetailPageDataSql();
-
-
-            var args = new DbParameter[] {
-                 new SqlParameter {ParameterName = "BomId", Value = search.BomId}
-            };
-            var query = _dbContext.Database.SqlQuery<BomDetail>(sql, args);
-            var queryable = query.AsQueryable();
+           
+            var queryable = BomDetailPageDataSql(search);
             var result = queryable.ToList().Count();
 
             return result;
         }
 
-        private string BomDetailPageDataSql()
+        private IQueryable<BomDetail> BomDetailPageDataSql(BomDetail search)
         {
             string sql = @"WITH bomMaterials AS(
 	                            SELECT 
@@ -159,7 +147,7 @@ namespace HardaGroup.ERP.DataAccess
 	                            StdUseQty,   --标准用量
 	                            LossRate,    --损耗率
 	                            RoundingPre, --舍入精度
-	                            Convert(decimal(20,6),(StdUseQty/BaseNumber)*(1+LossRate*0.01)) as Accumulate, --累计用量
+	                            Convert(decimal(20,6),(StdUseQty/BaseNumber)*(1+LossRate*0.01)) as UnitAccumulate, --单位累计用量
 	                            0 as leval FROM prdEnBomMaterials WHERE BomId=@BomId
 
 	                            UNION ALL
@@ -170,14 +158,18 @@ namespace HardaGroup.ERP.DataAccess
 	                            b.StdUseQty,
 	                            b.LossRate,
 	                            b.RoundingPre,
-	                            Convert(decimal(20,6),((a.accumulate * b.StdUseQty)/b.BaseNumber)*(1+b.LossRate*0.01)) as accumulate,
+	                            Convert(decimal(20,6),((a.UnitAccumulate * b.StdUseQty)/b.BaseNumber)*(1+b.LossRate*0.01)) as UnitAccumulate,
 	                            leval+1
 	                             --循环bomMaterials，在prdEnBomMaterials表中查找BomId等于a.ProdId的数据
 	                            FROM bomMaterials a,prdEnBomMaterials b where b.BomId = a.ProdId  
 	
 	
                             )
-                            SELECT * from 
+                            SELECT 
+                            baseapp.*, 
+							case when LTrim(RTrim(UnitName)) ='个' then  CAST(CEILING(TmpAccumulatea) AS numeric(20, 6))
+							else TmpAccumulatea end as Accumulate --累计用量            
+                            from 
                             (
                             select 
 							app.*,
@@ -186,8 +178,10 @@ namespace HardaGroup.ERP.DataAccess
 							T1.DefCostItemId, --物料类别,
 							T1.ProdSpec, --物料规格
 							UT.UnitName, --单位
-							app.accumulate*isnull(T2.Cost,0) as UnitCost --单位成本
-
+							base.Quantity, --母件产量,
+							isnull(T2.Cost,0) as Cost, --金额
+							app.UnitAccumulate*isnull(T2.Cost,0) as UnitCost, --单位成本
+							UnitAccumulate * isnull(base.Quantity,0) as TmpAccumulatea --累计用量
                             from 
                             (
 	                             --过滤不是最后层级的数据
@@ -198,13 +192,22 @@ namespace HardaGroup.ERP.DataAccess
 								) temp where temp.childNodes =0
 
                             )app
+							LEFT JOIN prdPassCostCollect base on base.ProdId =@BomId and base.MonthId =@MonthId
                             LEFT JOIN comProduct T1 ON app.ProdId=T1.ProdId
 							LEFT JOIN comUnit UT ON T1.UnitId=UT.UnitId
                             --过滤找不到费用的数据
-                            left JOIN PassProdCost T2 ON app.ProdId = T2.ProdId
+                            left JOIN PassProdCost T2 ON app.ProdId = T2.ProdId and T2.MonthId =@MonthId
                             ) baseapp";
 
-            return sql;
+            var args = new DbParameter[] {
+                 new SqlParameter {ParameterName = "MonthId", Value = search.MonthId},
+                 new SqlParameter {ParameterName = "BomId", Value = search.BomId}
+
+            };
+            var query = _dbContext.Database.SqlQuery<BomDetail>(sql, args);
+            var queryable = query.AsQueryable();
+
+            return queryable;
         }
 
         private void test(int skip, int limit,string monthId)

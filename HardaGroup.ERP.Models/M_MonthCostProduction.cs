@@ -72,6 +72,7 @@ namespace HardaGroup.ERP.Models
 
     public class M_BomDetail:BaseModel
     {
+        public string MonthId { get; set; }
         public Int64 RowId { get; set; }
         public string BomId { get; set; }
         /// <summary>
@@ -114,12 +115,17 @@ namespace HardaGroup.ERP.Models
         public int RoundingPre { get; set; }
 
         /// <summary>
-        /// 累计用量
+        /// 累计用量(乘以母件用量)
         /// </summary>
-        public decimal Accumulate { get;set; }
+        public decimal Accumulate { get; set; }
 
         /// <summary>
-        /// 单位成本
+        /// 金额
+        /// </summary>
+        public decimal Cost { get; set; }
+
+        /// <summary>
+        /// 单位成本(单位累计用量*金额)
         /// </summary>
         public decimal UnitCost { get; set; }
 

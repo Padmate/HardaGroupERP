@@ -81,7 +81,8 @@ namespace HardaGroup.ERP.Service
 
             var searchModel = new BomDetail()
             {
-                BomId = search.BomId
+                BomId = search.BomId,
+                MonthId = search.MonthId
             };
 
             var offset = search.offset;
@@ -102,7 +103,9 @@ namespace HardaGroup.ERP.Service
 
             var searchModel = new BomDetail()
             {
-                BomId = search.BomId
+                BomId = search.BomId,
+                MonthId = search.MonthId
+
             };
 
 
@@ -203,6 +206,7 @@ namespace HardaGroup.ERP.Service
                 RoundingPre = entity.RoundingPre,
                 Accumulate = entity.Accumulate,
                 UnitCost = entity.UnitCost,
+                Cost = entity.Cost,
                 DefCostItemId = entity.DefCostItemId
             };
             return model;

@@ -262,11 +262,12 @@
 
     function ShowDetail(prodid)
     {
+        var monthid = $("#selSearchMonth").val();
         var option = {
             title: '物料明细 - '+prodid,
             width:'90%',
             height:'90%',
-            content: '/Finance/MonthCostProduction/Detail?bomid=' + prodid
+            content: '/Finance/MonthCostProduction/Detail?bomid=' + prodid + "&monthid=" + monthid
         };
         var popwind = parent.popWindow(option);
        
