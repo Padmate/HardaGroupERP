@@ -52,6 +52,39 @@ namespace HardaGroup.ERP.Service
             return result;
         }
 
+        public List<M_MonthCostProduction> GetLevel1PageData(M_MonthCostProduction search)
+        {
+            D_MonthCostProduction dProduction = new D_MonthCostProduction();
+
+            MonthCostProduction searchModel = new MonthCostProduction()
+            {
+                MonthId = search.MonthId,
+                ProdId = search.ProdId,
+                ProdName = search.ProdName
+            };
+
+            var offset = search.offset;
+            var limit = search.limit;
+
+
+            var pageResult = dProduction.GetMonthCostProductionPageData(searchModel, offset, limit);
+
+            //循环每一条月成本数据
+            foreach (var monthCostData in pageResult)
+            {
+                //获取一级物料数据
+                monthCostData.MoneyDetails = dProduction.GetMoneyLevel1Details(monthCostData.ProdId, search.MonthId);
+                monthCostData.Money = monthCostData.MoneyDetails.Sum(m=>m.Money);
+                monthCostData.Cost = 0;
+                if (monthCostData.Quantity > 0) monthCostData.Cost = monthCostData.Money / monthCostData.Quantity;
+                monthCostData.DetailQuantity = monthCostData.MoneyDetails.Sum(m=>m.Quantity);
+            }
+
+
+            var result = pageResult.Select(a => ConverEntityToModel(a)).ToList();
+
+            return result;
+        }
 
         public int GetPageDataTotalCount(M_MonthCostProduction search)
         {
@@ -110,6 +143,49 @@ namespace HardaGroup.ERP.Service
 
 
             var totalCount = dProduction.GetBomDetailPageDataTotalCount(searchModel);
+
+            return totalCount;
+        }
+
+        /// <summary>
+        /// 获取分页数据
+        /// </summary>
+        /// <returns></returns>
+        public List<M_BomDetail> GetBomDetailLevel1PageData(M_BomDetail search)
+        {
+            D_MonthCostProduction dProduction = new D_MonthCostProduction();
+
+            var searchModel = new BomDetail()
+            {
+                BomId = search.BomId,
+                MonthId = search.MonthId
+            };
+
+            var offset = search.offset;
+            var limit = search.limit;
+
+
+            var pageResult = dProduction.GetBomDetailLevel1PageData(searchModel, offset, limit);
+
+            var result = pageResult.Select(a => ConverBomDetailEntityToModel(a)).ToList();
+
+            return result;
+        }
+
+
+        public int GetBomDetailLevel1PageDataTotalCount(M_BomDetail search)
+        {
+            D_MonthCostProduction dProduction = new D_MonthCostProduction();
+
+            var searchModel = new BomDetail()
+            {
+                BomId = search.BomId,
+                MonthId = search.MonthId
+
+            };
+
+
+            var totalCount = dProduction.GetBomDetailLevel1PageDataTotalCount(searchModel);
 
             return totalCount;
         }
@@ -177,10 +253,13 @@ namespace HardaGroup.ERP.Service
                 ProdName = entity.ProdName,
                 ProdSpec = entity.ProdSpec,
                 Quantity = entity.Quantity,
+                DetailQuantity = entity.DetailQuantity,
                 UnitName = entity.UnitName,
                 MoneyDetails = entity.MoneyDetails.Select(m => new M_MoneyDetail() { 
                     DefCostItemId = m.DefCostItemId,
-                    TotalCost = m.TotalCost
+                    TotalCost = m.TotalCost,
+                    Quantity = m.Quantity,
+                    Money = m.Money
                 }).ToList()
 
             };
@@ -207,7 +286,12 @@ namespace HardaGroup.ERP.Service
                 Accumulate = entity.Accumulate,
                 UnitCost = entity.UnitCost,
                 Cost = entity.Cost,
-                DefCostItemId = entity.DefCostItemId
+                DefCostItemId = entity.DefCostItemId,
+                TypeId = entity.TypeId,
+                BillNo = entity.BillNo,
+                LevelCost = entity.LevelCost,
+                LevelMoney = entity.LevelMoney,
+                LevelQuantity = entity.LevelQuantity
             };
             return model;
         }

@@ -53,6 +53,11 @@ namespace HardaGroup.ERP.Entities
         /// </summary>
         public decimal Quantity { get; set; }
 
+        /// <summary>
+        /// 材料用量
+        /// </summary>
+        public decimal DetailQuantity { get; set; }
+
         public List<MoneyDetail> MoneyDetails { get; set; }
         
 
@@ -96,8 +101,19 @@ namespace HardaGroup.ERP.Entities
         /// 总价格
         /// </summary>
         public decimal TotalCost { get; set; }
+
+        /// <summary>
+        /// 材料用量
+        /// </summary>
+        public decimal Quantity { get; set; }
+
+        /// <summary>
+        /// 金额
+        /// </summary>
+        public decimal Money { get; set; }
         
     }
+
 
     /// <summary>
     /// 产品结构明细
@@ -167,5 +183,31 @@ namespace HardaGroup.ERP.Entities
         /// 物料类别
         /// </summary>
         public string DefCostItemId { get; set; }
+
+        /// <summary>
+        /// 制令单据类型
+        /// </summary>
+        public string TypeId { get; set; }
+
+        /// <summary>
+        /// 制令单据编号
+        /// </summary>
+        public string BillNo { get; set; }
+
+        /// <summary>
+        /// 用量
+        /// </summary>
+        public decimal LevelQuantity { get; set; }
+
+        /// <summary>
+        /// 成本
+        /// </summary>
+        public decimal LevelCost { get; set; }
+
+
+        /// <summary>
+        /// 金额
+        /// </summary>
+        public decimal LevelMoney { get; set; }
     }
 }

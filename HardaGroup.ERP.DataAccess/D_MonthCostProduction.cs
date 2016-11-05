@@ -210,6 +210,75 @@ namespace HardaGroup.ERP.DataAccess
             return queryable;
         }
 
+        /// <summary>
+        /// 一级物料明细
+        /// </summary>
+        /// <param name="search"></param>
+        /// <param name="skip"></param>
+        /// <param name="limit"></param>
+        /// <returns></returns>
+        public List<BomDetail> GetBomDetailLevel1PageData(BomDetail search, int skip, int limit)
+        {
+
+            var queryable = BomDetailLevel1PageDataSql(search);
+
+            var result = queryable.OrderBy(a => a.RowId)
+            .Skip(skip)
+            .Take(limit)
+            .ToList();
+
+            return result;
+        }
+
+        public int GetBomDetailLevel1PageDataTotalCount(BomDetail search)
+        {
+
+            var queryable = BomDetailLevel1PageDataSql(search);
+            var result = queryable.ToList().Count();
+
+            return result;
+        }
+
+        private IQueryable<BomDetail> BomDetailLevel1PageDataSql(BomDetail search)
+        {
+            string sql = @"with passmatuse as(
+	                        Select 
+	                        T2.BomId, --物料编号
+	                        T3.ProdName AS BOMName, --物料名称
+	                        T3.ProdSpec AS BOMSpce, --物料规格
+	                        T0.ProdId, -- 一级物料编号
+	                        T1.ProdName, -- 一级物料名称
+	                        T1.ProdSpec, -- 一级物料规格
+	                        T0.Quantity as LevelQuantity, --用量
+	                        T0.Cost as LevelCost, --成本
+	                        T0.Money as LevelMoney, --金额
+	                        T1.DefCostItemId, --一级物料类别
+	                        T0.TypeId,  --制令单据类型
+	                        T0.BillNo,   --制令单据编号
+                            u.UnitName  --单位
+	                        FROM prdPassMatUse T0
+	                         join comProduct T1 ON T0.ProdId=T1.ProdId --物料主数据取回默认成本项目
+	                         join prdMakeOrder T2 ON T0.TypeId=T2.TypeId AND T0.BillNo=T2.BillNo
+	                         join comProduct T3 ON T2.BOMId=T3.ProdId
+                             left join comUnit u on T1.UnitId = u.UnitId
+	                        where T0.MonthId=@MonthId and T2.BOMId =@BomId
+                        )
+                        select 
+                        row_number() over(order by app.ProdId) as RowId, 
+                        app.* 
+                        from passmatuse app";
+
+            var args = new DbParameter[] {
+                 new SqlParameter {ParameterName = "MonthId", Value = search.MonthId},
+                 new SqlParameter {ParameterName = "BomId", Value = search.BomId}
+
+            };
+            var query = _dbContext.Database.SqlQuery<BomDetail>(sql, args);
+            var queryable = query.AsQueryable();
+
+            return queryable;
+        }
+
         private void test(int skip, int limit,string monthId)
         {
             System.Data.SqlClient.SqlParameter[] parameters = {   
@@ -292,6 +361,46 @@ namespace HardaGroup.ERP.DataAccess
                             --过滤找不到费用的数据
                             Inner JOIN PassProdCost T2 ON app.ProdId = T2.ProdId and T2.MonthId = @MonthId 
                             ) baseapp group by DefCostItemId";
+
+            var args = new DbParameter[] {
+                new SqlParameter {ParameterName = "BomId", Value = bomId},
+                new SqlParameter {ParameterName = "MonthId", Value = monthId}
+            };
+            var query = _dbContext.Database.SqlQuery<MoneyDetail>(sql, args);
+
+            var result = query.ToList();
+
+            return result;
+        }
+
+        public List<MoneyDetail> GetMoneyLevel1Details(string bomId, string monthId)
+        {
+            string sql = @"
+                            with passmatuse as(
+	                            Select 
+	                            T2.BomId, --物料编号
+	                            T3.ProdName AS BOMName, --物料名称
+	                            T3.ProdSpec AS BOMSpce, --物料规格
+	                            T0.ProdId, -- 一级物料编号
+	                            T1.ProdName, -- 一级物料名称
+	                            T1.ProdSpec, -- 一级物料规格
+	                            T0.Quantity, --产量
+	                            T0.Cost, --成本
+	                            T0.Money, --金额
+	                            T1.DefCostItemId, --一级物料类别
+	                            T0.TypeId,  --制令单据类型
+	                            T0.BillNo   --制令单据编号
+	                            FROM prdPassMatUse T0
+	                             join comProduct T1 ON T0.ProdId=T1.ProdId --物料主数据取回默认成本项目
+	                             join prdMakeOrder T2 ON T0.TypeId=T2.TypeId AND T0.BillNo=T2.BillNo
+	                             join comProduct T3 ON T2.BOMId=T3.ProdId
+	                            where T0.MonthId=@MonthId and T2.BOMId=@BomId
+                            )
+                            select 
+                              DefCostItemId,
+                              sum(Quantity) as Quantity, --材料用量
+                              sum(Money) as Money  --类别金额
+                            from passmatuse group by DefCostItemId";
 
             var args = new DbParameter[] {
                 new SqlParameter {ParameterName = "BomId", Value = bomId},

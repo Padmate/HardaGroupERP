@@ -15,6 +15,10 @@ namespace HardaGroup.ERP.Web.Controllers.Finance
     [Authorization]
     public class MonthCostProductionController:BaseController
     {
+        /// <summary>
+        /// 按BOM查询
+        /// </summary>
+        /// <returns></returns>
         public ActionResult Index()
         {
             D_Common dCommon = new D_Common();
@@ -30,7 +34,38 @@ namespace HardaGroup.ERP.Web.Controllers.Finance
             return View();
         }
 
+        /// <summary>
+        /// 一级查询
+        /// </summary>
+        /// <returns></returns>
+
+        public ActionResult IndexLevel1()
+        {
+            D_Common dCommon = new D_Common();
+            //查找所有的物料类别
+            var allCostItems = dCommon.GetAllCostItem();
+            ViewData["jsonAllCostItems"] = JsonHandler.ToJson(allCostItems);
+
+            //查询会计区间
+            var months = dCommon.GetAllMonth();
+            ViewData["month"] = months;
+
+
+            return View();
+        }
+
+
         public ActionResult Detail()
+        {
+            D_Common dCommon = new D_Common();
+            //查找所有的物料类别
+            var allCostItems = dCommon.GetAllCostItem();
+            ViewData["jsonAllCostItems"] = JsonHandler.ToJson(allCostItems);
+
+            return View();
+        }
+
+        public ActionResult DetailLevel1()
         {
             D_Common dCommon = new D_Common();
             //查找所有的物料类别
@@ -62,6 +97,21 @@ namespace HardaGroup.ERP.Web.Controllers.Finance
             return Json(pageResult);
         }
 
+        [HttpPost]
+        public ActionResult GetDetailLevel1PageData()
+        {
+            StreamReader srRequest = new StreamReader(Request.InputStream);
+            String strReqStream = srRequest.ReadToEnd();
+            M_BomDetail model = JsonHandler.UnJson<M_BomDetail>(strReqStream);
+
+            B_MonthCostProduction bMonthCostProduction = new B_MonthCostProduction();
+            var pageData = bMonthCostProduction.GetBomDetailLevel1PageData(model);
+            var totalCount = bMonthCostProduction.GetBomDetailLevel1PageDataTotalCount(model);
+
+            PageResult<M_BomDetail> pageResult = new PageResult<M_BomDetail>(totalCount, pageData);
+            return Json(pageResult);
+        }
+
 
         public ActionResult GetPageData()
         {
@@ -76,6 +126,29 @@ namespace HardaGroup.ERP.Web.Controllers.Finance
             }
             B_MonthCostProduction bMonthCostProduction = new B_MonthCostProduction();
             var pageData = bMonthCostProduction.GetPageData(model);
+            var totalCount = bMonthCostProduction.GetPageDataTotalCount(model);
+
+            pageResult = new PageResult<M_MonthCostProduction>(totalCount, pageData);
+            return Json(pageResult);
+        }
+
+        /// <summary>
+        /// 一级物料分页数据
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult GetPageDataForLevel1()
+        {
+            StreamReader srRequest = new StreamReader(Request.InputStream);
+            String strReqStream = srRequest.ReadToEnd();
+            M_MonthCostProduction model = JsonHandler.UnJson<M_MonthCostProduction>(strReqStream);
+
+            PageResult<M_MonthCostProduction> pageResult = new PageResult<M_MonthCostProduction>(0, new List<M_MonthCostProduction>());
+            if (string.IsNullOrEmpty(model.MonthId))
+            {
+                return Json(pageResult);
+            }
+            B_MonthCostProduction bMonthCostProduction = new B_MonthCostProduction();
+            var pageData = bMonthCostProduction.GetLevel1PageData(model);
             var totalCount = bMonthCostProduction.GetPageDataTotalCount(model);
 
             pageResult = new PageResult<M_MonthCostProduction>(totalCount, pageData);

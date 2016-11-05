@@ -1,0 +1,284 @@
+﻿@using HardaGroup.ERP.Entities;
+@{
+    ViewBag.title = "月生产成本表";
+    List<Month> months = (List<Month>)ViewData["month"];
+}
+<style>
+    .blue-column{
+        background-color:lightblue;
+    }
+    .pink-column{
+        background-color:lightpink;
+    }
+</style>
+<div class="wrapper wrapper-content">
+
+    <div class="row">
+        <div class="col-xs-12 col-is-6 col-sm-4 col-md-4">
+            <div class="col-xs-5 col-is-4 col-sm-5 col-md-4">
+                <label class="search-title text-right">物料编号：</label>
+
+            </div>
+            <div class="col-xs-7 col-is-8 col-sm-7 col-md-8">
+                <input class="input-small-full" id="tbSearchProdId" type="text" />
+
+            </div>
+        </div>
+        <div class="col-xs-12 col-is-6 col-sm-4 col-md-4">
+            <div class="col-xs-5 col-is-4 col-sm-5 col-md-4">
+                <label class="search-title text-right">物料名称：</label>
+
+            </div>
+            <div class="col-xs-7 col-is-8 col-sm-7 col-md-8">
+                <input class="input-small-full" id="tbSearchProdName" type="text" />
+
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-is-12 col-sm-12 col-md-12">
+
+            <div class="customer-table">
+                <div id="toolbar">
+                    <select id="selSearchMonth" class="form-control" style="margin-top:10px;">
+                        <option value="">请选择月份区间</option>
+                        @foreach (var month in months)
+                        {
+                            <option value="@month.MonthId">@month.MonthName</option>
+                        }
+                    </select>
+                    @*<select class="form-control">
+                        <option value="basic">Export Basic</option>
+                        <option value="all">Export All</option>
+                        <option value="selected">Export Selected</option>
+
+                    </select>
+                    <a id="btnAdd" class="btn btn-outline btn-primary" title="新增">
+                        <i class="glyphicon glyphicon-plus"></i>
+                    </a>
+                    <a id="btnDelete" class="btn btn-outline btn-warning" title="删除">
+                        <i class="glyphicon glyphicon-trash"></i>
+                    </a>*@
+                </div>
+                <table id="table"></table>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
+<script type="text/javascript">
+
+    var allCostItems = JSON.parse('@Html.Raw(ViewData["jsonAllCostItems"])');
+
+    $(document).ready(function () {
+        InitTable();
+        
+        //$('#toolbar').find('select').change(function () {
+        //    $("#table").bootstrapTable('refreshOptions', {
+        //        exportDataType: $(this).val()
+        //    });
+        //});
+
+    });
+    $(window).resize(function () {
+        $('#table').bootstrapTable('resetView');
+    });
+
+    //构造列
+    function ConstructColumns()
+    {
+        var columns = [{
+            checkbox: true
+        },
+            {
+                field: 'Id',
+                title: 'Id',
+                visible: false
+            },
+            {
+                field: 'ProdId',
+                title: '物料编号'
+                //filterControl: "input"
+            },
+            {
+                field: 'ProdName',
+                title: '物料名称'
+                //filterControl: "input"
+
+            }, {
+                field: 'ProdSpec',
+                title: '物料规格'
+            }, {
+                field: 'UnitName',
+                title: '单位'
+            }, {
+                field: 'Quantity',
+                title: '产量'
+            }, {
+                field: 'DetailQuantity',
+                title: '材料用量'
+            }
+        ];
+
+        for (var i = 0; i < allCostItems.length;i++)
+        {
+            columns.push({
+                field: allCostItems[i].CostItemId,
+                title: allCostItems[i].CostItemName,
+                'class': "blue-column",
+                formatter: function (value, row, index) {
+                    
+                    var result = 0;
+                    for (i = 0; i < row.MoneyDetails.length;i++)
+                    {
+                        if (this.field == row.MoneyDetails[i].DefCostItemId)
+                        {
+                            result = row.MoneyDetails[i].Money;
+                            break;
+                        }
+                    }
+                    return result;
+                    
+                }
+            });
+        }
+
+        columns.push({
+            field: '',
+            title: '无类别金额',
+            'class': "pink-column",
+            formatter: function (value, row, index) {
+
+                var result = 0;
+                for (i = 0; i < row.MoneyDetails.length; i++) {
+                    if (this.field == row.MoneyDetails[i].DefCostItemId) {
+                        result = row.MoneyDetails[i].Money;
+                        break;
+                    }
+                }
+                return result;
+
+            }
+        });
+
+        columns.push({
+            field: 'Cost',
+            title: '单位成本'
+        });
+
+        columns.push({
+            field: 'Money',
+            title: '总成本'
+
+        });
+        return columns;
+    }
+
+    function InitTable()
+    {
+        
+        var columns = ConstructColumns();
+
+        $('#table').bootstrapTable({
+            height: $(document.body).height() - $(".search-area").height()-20,
+            method: 'post',                 //The method type to request remote data.
+            url: '/Finance/MonthCostProduction/GetPageDataForLevel1',
+            dataType: "json",               //The type of data that you are expecting back from the server.
+            contentType:'application/json',
+            pagination: true,               //True to show a pagination toolbar on table bottom.
+            pageSize: 10,                   //初始化每页显示几条
+            pageNumber:1,                   //初始化在第几页
+            pageList: [10,25,50,100,200,'All'],
+            sidePagination: "server",       //服务端请求
+            idField: 'Id',
+            uniqueId:'Id',
+            toolbar:'#toolbar',
+            showRefresh:true,
+            search: false,
+            //filterControl: true,   //显示过滤
+            //filterShowClear: true,  //显示清空过滤按钮
+            showExport: true, //数据导出
+            showToggle:true,
+            exportDataType: 'basic', // 'basic', 'all', 'selected'.
+            exportTypes:['json', 'xml', 'csv', 'txt', 'sql', 'excel'],
+            clickToSelect: true,     //单击行选中数据
+            queryParams: ConstructQueryParams,
+            showColumns:true,
+            locale:'zh-cn',
+            columns: columns,
+            onDblClickRow: function (row, $element, field) {
+                
+                ShowDetail(row.ProdId)
+            }
+
+        });
+
+        
+
+        $(window).resize(function () {
+            $('#table').bootstrapTable('resetView');
+        });
+
+
+        document.onkeydown = function (e) {
+            var ev = document.all ? window.event : e;
+            if (ev.keyCode == 13) {
+
+                RefreshTable();
+            }
+        };
+
+        
+    }
+
+
+
+    function ConstructQueryParams(param)
+    {
+        
+        var filterObj = {};
+        if(param.filter != null)
+        {
+            filterObj = JSON.parse(param.filter);
+        }
+        var params = {
+            limit: param.limit, //页面大小
+            offset:param.offset,//偏移数量
+            page: param.offset / param.limit, //页码
+            MonthId: $("#selSearchMonth").val(),
+            ProdId: $("#tbSearchProdId").val(),
+            ProdName: $("#tbSearchProdName").val()
+            //ProdId: filterObj.ProdId == null ? "" : filterObj.ProdId,
+            //ProdName: filterObj.ProdName ==null?"":filterObj.ProdName
+        };
+        return params;
+    }
+
+    
+
+    function ShowDetail(prodid)
+    {
+        var monthid = $("#selSearchMonth").val();
+        var option = {
+            title: '一级物料明细 - '+prodid,
+            width:'90%',
+            height:'90%',
+            content: '/Finance/MonthCostProduction/DetailLevel1?bomid=' + prodid + "&monthid=" + monthid
+        };
+        var popwind = parent.popWindow(option);
+       
+    }
+   
+    function RefreshTable()
+    {
+        $('#table').bootstrapTable('refresh');
+
+    }
+</script>
