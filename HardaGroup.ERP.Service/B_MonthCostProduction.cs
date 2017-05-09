@@ -105,6 +105,60 @@ namespace HardaGroup.ERP.Service
         }
 
         /// <summary>
+        /// 实际成本
+        /// </summary>
+        /// <param name="search"></param>
+        /// <returns></returns>
+        public List<M_MonthCostProduction> GetActPageData(M_MonthCostProduction search)
+        {
+            D_MonthCostProduction dProduction = new D_MonthCostProduction();
+
+            MonthCostProduction searchModel = new MonthCostProduction()
+            {
+                MonthId = search.MonthId,
+                ProdId = search.ProdId,
+                ProdName = search.ProdName
+            };
+
+            var offset = search.offset;
+            var limit = search.limit;
+
+
+            var pageResult = dProduction.GetActMonthCostProductionPageData(searchModel, offset, limit);
+
+            List<M_MonthCostProduction> result = new List<M_MonthCostProduction>();
+            //按物料编号分组
+            var groupData = pageResult.GroupBy(v=>v.ProdId.ToUpper());
+            foreach(var eachData in groupData){
+
+                List<M_MoneyDetail> moneyDetails = new List<M_MoneyDetail>();
+                var costItemGroupData = eachData.GroupBy(v=>v.CostItemId);
+                foreach (var costItemData in costItemGroupData)
+                {
+                    M_MoneyDetail moneyDetail = new M_MoneyDetail();
+                    moneyDetail.DefCostItemId = costItemData.First().CostItemId.Trim();
+                    moneyDetail.Money = costItemData.Sum(v=>v.Cost);
+                    moneyDetails.Add(moneyDetail);
+                }
+                M_MonthCostProduction prod = new M_MonthCostProduction();
+                prod.ProdId = eachData.First().ProdId;
+                prod.ProdName = eachData.First().ProdName;
+                prod.ProdSpec = eachData.First().ProdSpec;
+                prod.UnitName = eachData.First().UnitName;
+                prod.Cost = moneyDetails.Sum(v=>v.Money);  //单位成本
+                prod.MoneyDetails = moneyDetails;
+                prod.Quantity = eachData.First().Quantity;
+                prod.Money = prod.Quantity * prod.Cost; //总成本
+
+
+
+                result.Add(prod);
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// 获取分页数据
         /// </summary>
         /// <returns></returns>

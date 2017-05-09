@@ -54,6 +54,26 @@ namespace HardaGroup.ERP.Web.Controllers.Finance
             return View();
         }
 
+        /// <summary>
+        /// 实际成本
+        /// </summary>
+        /// <returns></returns>
+
+        public ActionResult IndexAct()
+        {
+            D_Common dCommon = new D_Common();
+            //查找所有的物料类别
+            var allCostItems = dCommon.GetAllCostItem();
+            ViewData["jsonAllCostItems"] = JsonHandler.ToJson(allCostItems);
+
+            //查询会计区间
+            var months = dCommon.GetAllMonth();
+            ViewData["month"] = months;
+
+
+            return View();
+        }
+
 
         public ActionResult Detail()
         {
@@ -151,6 +171,31 @@ namespace HardaGroup.ERP.Web.Controllers.Finance
             var pageData = bMonthCostProduction.GetLevel1PageData(model);
             var totalCount = bMonthCostProduction.GetPageDataTotalCount(model);
 
+            pageResult = new PageResult<M_MonthCostProduction>(totalCount, pageData);
+            return Json(pageResult);
+        }
+
+
+        /// <summary>
+        /// 实际成本分页数据
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult GetPageDataForAct()
+        {
+            StreamReader srRequest = new StreamReader(Request.InputStream);
+            String strReqStream = srRequest.ReadToEnd();
+            M_MonthCostProduction model = JsonHandler.UnJson<M_MonthCostProduction>(strReqStream);
+
+            PageResult<M_MonthCostProduction> pageResult = new PageResult<M_MonthCostProduction>(0, new List<M_MonthCostProduction>());
+            if (string.IsNullOrEmpty(model.MonthId))
+            {
+                return Json(pageResult);
+            }
+            B_MonthCostProduction bMonthCostProduction = new B_MonthCostProduction();
+            var pageData = bMonthCostProduction.GetActPageData(model);
+            var totalCount = pageData.Count;
+
+            pageData = pageData.OrderBy(v=>v.ProdId).ToList();
             pageResult = new PageResult<M_MonthCostProduction>(totalCount, pageData);
             return Json(pageResult);
         }

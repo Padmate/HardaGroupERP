@@ -75,6 +75,8 @@ namespace HardaGroup.ERP.DataAccess
             return result;
         }
 
+
+
         public int GetMonthCostProductionPageDataCount(MonthCostProduction search)
         {
             string sql = @"select 
@@ -104,6 +106,203 @@ namespace HardaGroup.ERP.DataAccess
             }
             #endregion
             var result = queryable.ToList().Count();
+
+            return result;
+        }
+
+        /// <summary>
+        /// 实际成本
+        /// </summary>
+        /// <param name="search"></param>
+        /// <param name="skip"></param>
+        /// <param name="limit"></param>
+        /// <returns></returns>
+        public List<MonthCostProduction> GetActMonthCostProductionPageData(MonthCostProduction search, int skip, int limit)
+        {
+
+            List<MonthCostProduction> result = new List<MonthCostProduction>();
+
+            #region
+            try
+            {
+                //删除临时表
+                var dropTableSql = @"Drop Table [HEDCostItem]";
+                _dbContext.Database.ExecuteSqlCommand(dropTableSql);
+
+            }catch(Exception e){ 
+                //表不存在
+            }
+            
+            try{
+
+                //创建临时表
+                var createTableSql = @"
+                            CREATE TABLE [dbo].[HEDCostItem](
+	                            [MonthId] [nchar](10) NULL,
+	                            [ProdId] [nchar](20) NULL,
+	                            [CostItemId] [nchar](10) NULL,
+	                            [Cost] [decimal](18, 6) NULL,
+	                            [IsBom] [int] NULL,
+	                            [LowLevelCode] [int] NULL,
+	                            [Money] [decimal](18, 6) NULL
+                            ) ON [PRIMARY]
+                                ";
+                _dbContext.Database.ExecuteSqlCommand(createTableSql);
+                
+                //删除当前月份数据
+                var delSql = @"
+                        Delete cstMakeOrderTreeDetailR
+                        FROM cstMakeOrderTreeDetailR
+                        WHERE MonthId=@MonthId --当前报表查询月份
+                        ";
+                var delArgs = new DbParameter[] {
+                    new SqlParameter {ParameterName = "MonthId", Value = search.MonthId}
+                };
+                _dbContext.Database.ExecuteSqlCommand(delSql,delArgs);
+
+
+                //插入当前月份数据
+                var insertSql = @"
+                            INSERT INTO cstMakeOrderTreeDetailR
+                                (MonthId,ProdId,LowLevelCode,IsBom,IsReMade)
+                                SELECT MonthId,ProdId,LowLevelCode,IsBom,IsReMade
+                                FROM cstMakeOrderTreeDetail
+                                WHERE MonthId=@MonthId--当前报表查询月份
+                            ";
+                var insertArgs = new DbParameter[] {
+                    new SqlParameter {ParameterName = "MonthId", Value = search.MonthId}
+                };
+                _dbContext.Database.ExecuteSqlCommand(insertSql,insertArgs);
+
+                //查询isbom的最高级
+                var maxLevelCodeSql = @"SELECT isnull(MAX(LowLevelCode),0) maxLevelCode FROM cstMakeOrderTreeDetailR WHERE ISBOM='1'";
+                var maxLevelCode = _dbContext.Database.SqlQuery<int>(maxLevelCodeSql).FirstOrDefault();
+
+                if(maxLevelCode >0)
+                {
+                    #region 
+                    //插入最末级成本分析临时表
+                    var insertHEDSql = @"
+                                --插入成本分析临时表
+                                INSERT INTO HEDCostItem
+                                (MonthId,ProdId,CostItemId,Cost)
+                                --最末级母件成本项目
+                                SELECT T0.MonthId,T0.BOMId,T0.CostItemId,T0.Money/T1.Quantity AS Cost
+                                FROM 
+                                (
+	                                SELECT T0.MonthId,T1.BOMId,T0.CostItemId,SUM(T0.Money) AS Money
+	                                FROM prdPassMatUse T0
+		                                JOIN prdMakeOrder T1 ON T0.TypeId=T1.TypeId AND T0.BillNo=T1.BillNo
+		                                JOIN
+		                                (
+			                                SELECT ProdId
+			                                FROM cstMakeOrderTreeDetailR
+			                                WHERE IsBom=1
+				                                AND MonthId=@MonthId
+				                                AND LowLevelCode=@LevelCode
+		                                ) T3 ON T1.BOMId=T3.ProdId
+	                                WHERE T0.MonthId=@MonthId
+	                                GROUP BY T0.MonthId,T1.BOMId,T0.CostItemId
+                                ) T0
+                                JOIN prdPassCostCollect T1 ON T0.BOMId=T1.ProdId AND T0.MonthId=T1.MonthId
+                                WHERE T1.Quantity>0
+                                ";
+                    var insertHEDArgs = new DbParameter[] {
+                        new SqlParameter {ParameterName = "MonthId", Value = search.MonthId},
+                        new SqlParameter {ParameterName = "LevelCode", Value = maxLevelCode}
+
+                    };
+                    _dbContext.Database.ExecuteSqlCommand(insertHEDSql,insertHEDArgs);
+
+                    //插入最末级-1 成本分析临时表
+                    for (int i = 0; i < maxLevelCode - 1; i++)
+                    {
+                        var levelCode = i;
+                        insertHEDSql = @"
+                                --插入成本分析临时表
+                                INSERT INTO HEDCostItem
+                                (MonthId,ProdId,CostItemId,Cost)
+                                --最末级-1 级，母件成本项目
+                                SELECT T0.MonthId,T0.BOMId,T0.CostItemId,T0.Money/T1.Quantity AS ItemCost
+                                FROM 
+                                (
+	                                SELECT T0.MonthId,T0.BOMId,T0.CostItemId,SUM(T0.Money) AS Money
+	                                FROM 
+	                                (
+		                                select T0.MonthId,T1.BomId,T0.ProdId,ISNULL(T4.CostItemId,T0.CostItemId) AS CostItemId,
+		                                CASE WHEN T4.CostItemId IS NULl THEN T0.Money ELSE T0.Quantity*T4.Cost END AS Money	
+		                                FROM prdPassMatUse T0
+			                                JOIN prdMakeOrder T1 ON T0.TypeId=T1.TypeId AND T0.BillNo=T1.BillNo
+			                                JOIN
+			                                (
+				                                SELECT ProdId
+				                                FROM cstMakeOrderTreeDetailR
+				                                WHERE IsBom=1
+					                                AND MonthId=@MonthId
+					                                AND LowLevelCode=@LevelCode
+			                                ) T3 ON T1.BOMId=T3.ProdId
+			                                LEFT JOIN HEDCostItem T4 ON T0.ProdId=T4.ProdId
+		                                WHERE T0.MonthId=@MonthId
+	                                ) T0
+	                                GROUP BY T0.MonthId,T0.BOMId,T0.CostItemId
+                                ) T0
+                                JOIN prdPassCostCollect T1 ON T0.BOMId=T1.ProdId AND T0.MonthId=T1.MonthId
+                                WHERE T1.Quantity>0
+                                    ";
+                        insertHEDArgs = new DbParameter[] {
+                            new SqlParameter {ParameterName = "MonthId", Value = search.MonthId},
+                            new SqlParameter {ParameterName = "LevelCode", Value = levelCode}
+
+                        };
+                        _dbContext.Database.ExecuteSqlCommand(insertHEDSql,insertHEDArgs);
+                    }
+                    #endregion
+
+
+                    _dbContext.SaveChanges();
+
+                    var searchSql = @"
+                         select 
+                        T.MonthId,
+                        T.ProdId,
+                        T.CostItemId,
+                        T.Cost,
+                        T1.ProdName, -- 一级物料名称
+                        T1.ProdSpec, -- 一级物料规格
+                        T2.UnitName,  --单位
+                        T3.Quantity  --产量
+                        from HEDCostItem T
+                        left join comProduct T1 ON T.ProdId=T1.ProdId
+                        left join comUnit T2 on T1.UnitId = T2.UnitId
+                        left join prdPassCostCollect T3 on T.ProdId = T3.ProdId and t3.MonthId =@MonthId
+
+                        ";
+                    var searchArgs = new DbParameter[] {
+                        new SqlParameter {ParameterName = "MonthId", Value = search.MonthId}
+
+                    };
+                    var query = _dbContext.Database.SqlQuery<MonthCostProduction>(searchSql,searchArgs);
+                    var queryable = query.AsQueryable();
+
+                    #region 查询条件
+                    if (!string.IsNullOrEmpty(search.ProdId))
+                    {
+                        queryable = queryable.Where(a => a.ProdId.ToLower().Contains(search.ProdId.ToLower()));
+                    }
+                    if (!string.IsNullOrEmpty(search.ProdName))
+                    {
+                        queryable = queryable.Where(a => a.ProdName.ToLower().Contains(search.ProdName.ToLower()));
+                    }
+                    #endregion
+
+                    result = queryable.ToList();
+                }
+
+            }catch(Exception ex){
+                //
+            }
+            #endregion
+            
 
             return result;
         }

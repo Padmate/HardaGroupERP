@@ -59,6 +59,8 @@ namespace HardaGroup.ERP.Entities
         public decimal DetailQuantity { get; set; }
 
         public List<MoneyDetail> MoneyDetails { get; set; }
+
+        public string CostItemId { get; set; }
         
 
     }
